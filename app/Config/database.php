@@ -6,8 +6,8 @@ class DATABASE_CONFIG {
 		'datasource' => 'Database/Mysql',
 		'persistent' => false,
 		'host' => 'localhost',
-		'login' => 'root',
-		'password' => 'root@123',
-		'database' => 'akpageV10',
+		'login' => 'nireeksh_akpgv1',
+		'password' => 'akpgv1@123',
+		'database' => 'nireeksh_akpageV1',
 	);
 }
