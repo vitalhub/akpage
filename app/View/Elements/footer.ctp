@@ -78,9 +78,9 @@
     
 	
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <?php //echo $this->Html->script(array('https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js')); ?>
+    <?php echo $this->Html->script(array('https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js')); ?>
     <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <?php //echo $this->Html->script(array('bootstrap.min')); ?>
+    <?php echo $this->Html->script(array('bootstrap.min')); ?>
   
   <?php echo $this->Js->writeBuffer(); ?>
   

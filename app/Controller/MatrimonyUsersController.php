@@ -214,7 +214,7 @@ class MatrimonyUsersController extends AppController{
 			$this->loadModel('AkpageUser');
 			$this->AkpageUser->create();
 			if($this->AkpageUser->save($this->request->data['AkpageUser'])){
-				$this->Session->setFlash("Your details stored successfully");
+				$this->Session->setFlash(__("Your details stored successfully"), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'register1'));
 			}else
 				$this->Session->setFlash("problem storing your details. please enter details correctly.");
@@ -261,7 +261,7 @@ class MatrimonyUsersController extends AppController{
 					
 			}
 
-			if ( !preg_match('/^[a-z0-9-#\/,: ]+$/i', $this->request->data['MatrimonyUser']['address']) ) {
+			if ( !preg_match('/^[a-z0-9-#\/,:\. ]+$/i', $this->request->data['MatrimonyUser']['address']) ) {
 				$this->MatrimonyUser->invalidate('address', __('Special Symbols Not Allowed'));
 				return  false;
 					
@@ -311,7 +311,7 @@ class MatrimonyUsersController extends AppController{
 
 			$this->MatrimonyUser->create();
 			if($this->MatrimonyUser->save($data)){
-				$this->Session->setFlash("Your details stored successfully. Fill step-3 details.");
+				$this->Session->setFlash(__("Your details stored successfully. Fill step-3 details."), 'default', array('class' => 'success'));
 				$this->redirect(array('controller' => 'MatrimonyUsers', 'action' => 'register2'));
 			}else
 				$this->Session->setFlash("problem storing your details. please enter details correctly.");
@@ -458,7 +458,7 @@ class MatrimonyUsersController extends AppController{
 			//$this->MatrimonyUser->create();
 			$fields = array('MatrimonyUser.familyDetails'=>"'".$family."'",'MatrimonyUser.professionalDetails'=>"'".$profession."'",'MatrimonyUser.educationalDetails'=>"'".$education."'",'MatrimonyUser.registrationLevel'=>'2', 'MatrimonyUser.qualification'=> "'".$this->request->data['MatrimonyUser']['qualification']."'");
 			if($this->MatrimonyUser->updateAll($fields,array('MatrimonyUser.akpageUser_id'=>$akpageUserId['AkpageUser']['id']))){
-				$this->Session->setFlash("Your details stored successfully. Fill final step details.");
+				$this->Session->setFlash(__("Your details stored successfully. Fill final step details."), 'default', array('class' => 'success'));
 				$this->redirect(array('controller' => 'MatrimonyUsers', 'action' => 'register3'));
 			}else
 				$this->Session->setFlash("problem storing your details. please enter details correctly.");
@@ -470,8 +470,8 @@ class MatrimonyUsersController extends AppController{
 
 	public function register3(){
 
-		$states = $this->MatrimonyUser->State->find('list');
-		$this->set(compact('states'));
+		$partnerStates = $this->MatrimonyUser->State->find('list');
+		$this->set(compact('partnerStates'));
 
 		if($this->request->is('post')){
 
@@ -482,7 +482,7 @@ class MatrimonyUsersController extends AppController{
 
 			foreach ($this->request->data['MatrimonyUser'] as $key => $value) {
 					
-				if (in_array($key, array('qualification', 'aboutPartner'))) {
+				if (in_array($key, array('partnerQualification', 'aboutPartner'))) {
 					$this->request->data['MatrimonyUser'][$key] = strip_tags($this->request->data['MatrimonyUser'][$key]);
 					$this->request->data['MatrimonyUser'][$key] = trim($this->request->data['MatrimonyUser'][$key]);
 
@@ -493,9 +493,9 @@ class MatrimonyUsersController extends AppController{
 			}
 
 
-			if ( !preg_match('/^[a-z. ]+$/i', $this->request->data['MatrimonyUser']['qualification']) ) {
+			if ( !preg_match('/^[a-z. ]+$/i', $this->request->data['MatrimonyUser']['partnerQualification']) ) {
 					
-				$this->MatrimonyUser->invalidate('qualification', __('Characters only'));
+				$this->MatrimonyUser->invalidate('partnerQualification', __('Characters only'));
 				return  false;
 					
 			}
@@ -515,7 +515,7 @@ class MatrimonyUsersController extends AppController{
 
 			$fields = array('MatrimonyUser.partnerDetails'=>"'".$partner."'",'MatrimonyUser.registrationLevel'=>'3');
 			if($this->MatrimonyUser->updateAll($fields,array('MatrimonyUser.akpageUser_id'=>$akpageUserId['AkpageUser']['id']))){
-				$this->Session->setFlash("Matrimony complete details stored successfully. Thank you for providing details.");
+				$this->Session->setFlash(__("Details stored successfully. Thank you for providing details."), 'default', array('class' => 'success'));
 				$this->redirect(array('controller' => 'matrimonyUsers', 'action' => 'matchingProfiles'));
 			}else
 				$this->Session->setFlash("problem storing your details. please enter details correctly.");
@@ -612,7 +612,7 @@ class MatrimonyUsersController extends AppController{
 
 			if($matches){
 					
-				//$this->Session->setFlash('Perfect matching profiles for you');
+				//$this->Session->setFlash('Perfect matching profiles for you', 'default', array('class' => 'success'));
 				$msg = "Matching Profiles";
 
 			}else{
@@ -663,7 +663,7 @@ class MatrimonyUsersController extends AppController{
 				$matches = $this->Paginator->paginate();
 
 				if($matches)
-					//$this->Session->setFlash('profiles recommended for you');
+					//$this->Session->setFlash('profiles recommended for you', 'default', array('class' => 'success'));
 					$msg = "Recommended Profiles";
 				else
 					//$this->Session->setFlash('No matches for you');
@@ -790,6 +790,8 @@ class MatrimonyUsersController extends AppController{
 
 		if ($this->Session->read('Auth.User.group_id') == 2 ) {
 			$this->layout = 'defaultAdmins';
+		}else if (!$this->Session->read('Auth.User.id')) {
+			return $this->redirect(array('controller' => 'users', 'action' => 'login'));
 		}else {
 			$this->layout = 'matrimony';
 		}
@@ -1239,7 +1241,7 @@ class MatrimonyUsersController extends AppController{
 				$profilePic = $pics[$data['photos']];
 				$this->MatrimonyUser->id = $matrimonyUserId;
 				if($this->MatrimonyUser->saveField('profilePic',$profilePic)){
-					$this->Session->setFlash('Your profile picture changed successfully.');
+					$this->Session->setFlash(__('Your profile picture changed successfully.'), 'default', array('class' => 'success'));
 					$this->redirect($this->referer());
 				}else{
 					$this->Session->setFlash('Problem occured while changing profile pic. Please try again.');
@@ -1351,7 +1353,6 @@ class MatrimonyUsersController extends AppController{
 			$this->layout = 'matrimony';
 		}
 
-
 		//if($this->request->is('post')){
 		$data = $this->params->query;
 
@@ -1363,7 +1364,7 @@ class MatrimonyUsersController extends AppController{
 			//$data = $this->request->data['MatrimonyUser'];
 			$data['matrimonyId'] = str_ireplace("AKPG", "", $data['matrimonyId']);
 			//pr($data['matrimonyId']);exit;
-			$options = array('conditions' => array('MatrimonyUser.matrimonyId'=>$data['matrimonyId']), 'recursive' => 0);
+			$options = array('conditions' => array('MatrimonyUser.matrimonyId'=>$data['matrimonyId'], 'MatrimonyUser.registrationLevel' => 3), 'recursive' => 0);
 			$searchedUser = $this->MatrimonyUser->find('first',$options);
 
 			if ($searchedUser) {
@@ -1417,6 +1418,7 @@ class MatrimonyUsersController extends AppController{
 		$paginate = array(
 				'limit' => $pageLimit,
 				'conditions' => array(
+						'MatrimonyUser.registrationLevel' => 3,
 						'AkpgUser.gender'=>$data['gender'],
 						'AkpgUser.dob <=' => $data['fromAge'], 'AkpgUser.dob >=' => $data['toAge']
 				),

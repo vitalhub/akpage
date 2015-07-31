@@ -19,15 +19,17 @@ class UsersController extends AppController {
 		//$this->Auth->allow('forgotPassword');
 		//$this->Auth->allow('home', 'view', 'edit');
 
-		$this->Auth->allow('initDB');
+		//$this->Auth->allow('initDB');
 		
 		/* echo "<pre>";
 		print_r($this->currentUser);
 		exit; */
 		
 		if (!$this->currentUser) {
+			//echo "hello"; exit;
 			$this->Auth->allow('login', 'forgotPassword', 'register');
 		}else {
+			
 			$this->Auth->allow('logout');
 		}
 		
@@ -127,6 +129,11 @@ class UsersController extends AppController {
 
 
 	public function register(){
+		
+		if ($this->Session->read('Auth.User.id') && in_array($this->Auth->user('group_id'), array(1,2))) {
+			$this->Session->setFlash(__("Hey..! You Already Logged In"));
+			return $this->redirect($this->referer());
+		}
 
 		$groupId = '';
 		if ($this->Session->read('Auth.User.id')) {
@@ -267,6 +274,12 @@ class UsersController extends AppController {
 
 
 	public function login() {
+		
+		if ($this->Session->read('Auth.User.id')) {
+			$this->Session->setFlash(__("Hey..! You Already Logged In"));
+			return $this->redirect($this->referer());
+		}
+		
 		if ($this->request->is('post')) {
 			/* echo "<pre>";
 			 print_r($this->Auth->user);
@@ -470,6 +483,11 @@ class UsersController extends AppController {
 
 	*/
 	public function forgotPassword(){
+		
+		if ($this->Session->read('Auth.User.id')) {
+			$this->Session->setFlash(__("Hey..! You Already Logged In"));
+			return $this->redirect($this->referer());
+		}
 			
 		if($this->request->is('post')){
 

@@ -39,9 +39,6 @@
 <?php echo $this->Html->css(array('myStyles')); ?>
 <?php //echo $this->Html->script(array('jquery.min', 'jquery')); ?>
 
-<?php echo $this->Html->script(array('https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js')); ?>
-
-<?php echo $this->Html->script(array('bootstrap.min')); ?>
 
 <?php 
 echo $this->fetch('meta');

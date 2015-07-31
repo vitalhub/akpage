@@ -131,7 +131,7 @@
 	<?php }else if($allowed == 0){ ?>
 	
 		<h4 class="align-center">
-			<span class="blink"><?php echo $this->Html->link('Click here to see Email, Address and Contact Details',array('controller'=>'MatrimonyUsers','action' => 'membership')); ?></span>
+			<span class="blink"><?php echo $this->Html->link('Click here to see Email, Address and Contact Details',array('controller'=>'MatrimonyUsers','action' => 'payment')); ?></span>
 		</h4>
 	
 	<?php } ?>
