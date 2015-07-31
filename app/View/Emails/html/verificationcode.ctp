@@ -23,7 +23,7 @@ $content = "Hi,"."<br />
 Welcome to Akpage.<br />
 Your new Reset code is send. you'll need to verify by pasting this verification code in the verification page after log-in to Akpage:<p><b>".$verificationCode."</b></p>".
 
-$this->Html->link('Click Here', $verifyUrl, array('escape' => false)). " to login to Akpage. </br></br>
+$this->Html->link('Click Here', $verifyUrl, array('escape' => false)). " to verify your registration in Akpage. </br></br>
 
 Should you need any further assistance, please contact our customer service at service@akpage.com <br />
 

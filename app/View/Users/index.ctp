@@ -39,7 +39,7 @@
 				<td class="actions">
 					<?php 
 						echo $this->Html->link($this->Html->image("actionIcons/view-icon.png",array('title'=>__('View'),'width'=>'26','height'=>'26')),array('controller' => 'users', 'action'=>"view", $user['User']['id']),array('escape'=>false))."&nbsp; &nbsp; &nbsp;";						 
-						echo $this->Html->link($this->Html->image("actionIcons/edit-icon.png",array('title'=>__('Edit'),'width'=>'26','height'=>'26')),array('controller' => 'users', 'action'=>"edit", $user['User']['id']),array('escape'=>false))."&nbsp; &nbsp; &nbsp;"; 
+						//echo $this->Html->link($this->Html->image("actionIcons/edit-icon.png",array('title'=>__('Edit'),'width'=>'26','height'=>'26')),array('controller' => 'users', 'action'=>"edit", $user['User']['id']),array('escape'=>false))."&nbsp; &nbsp; &nbsp;"; 
 						echo $this->Form->postLink($this->Html->image("actionIcons/deleteForever-icon.png",array('title'=>__('Delete'),'width'=>'26','height'=>'26')), array('action' => 'delete', $user['User']['id']), array('escape'=>false), __('Are you sure you want to delete # %s?', $user['User']['id']))."&nbsp; &nbsp; &nbsp;";
 					 ?>
 				</td>
