@@ -25,30 +25,31 @@
 						    	</div>
 				    	  	</div>
 				    	  	
-				    	  	<?php }
-							}else
+				    	  	<?php } ?>
+				    	  	
+				    	  	<p>
+				    	  	<?php
+				    	  	echo $this->Paginator->counter(array(
+				    	  			'format' => __('Page {:page} of {:pages}, showing {:current} records out of {:count} total, starting on record {:start}, ending on {:end}')
+				    	  	));
+				    	  	?>
+				    	  				</p>
+				    	  				<div class="align-center">
+				    	  					<nav>
+				    	  						<ul class="pagination">
+				    	  							<?php
+				    	  							echo "<li>".$this->Paginator->prev('< ' . __('previous'), array(), null, array('class' => 'prev disabled'))."</li>";
+				    	  							echo "<li>".$this->Paginator->numbers(array('separator' => ''), array('class' => 'active'))."</li>";
+				    	  							echo "<li>".$this->Paginator->next(__('next') . ' >', array(), null, array('class' => 'next disabled'))."</li>";
+				    	  							?>
+				    	  						</ul>
+				    	  					</nav>
+				    	  				</div>
+				    	  	
+						<?php }else
 								echo __("Sorry...! No News Posted.");
-							?>
+							?>	
 							
-							
-							<p>
-				<?php
-				echo $this->Paginator->counter(array(
-				'format' => __('Page {:page} of {:pages}, showing {:current} records out of {:count} total, starting on record {:start}, ending on {:end}')
-				));
-				?>
-			</p>
-			<div class="align-center">
-				<nav>
-					<ul class="pagination">
-						<?php
-						echo "<li>".$this->Paginator->prev('< ' . __('previous'), array(), null, array('class' => 'prev disabled'))."</li>";
-						echo "<li>".$this->Paginator->numbers(array('separator' => ''), array('class' => 'active'))."</li>";
-						echo "<li>".$this->Paginator->next(__('next') . ' >', array(), null, array('class' => 'next disabled'))."</li>";
-						?>
-					</ul>
-				</nav>
-			</div>
 				    	  
    	</div>
    	
