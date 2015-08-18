@@ -113,4 +113,4 @@ CakeLog::config('error', array(
 
 // **************** Akpage application specific settings ****************************
 
-Configure::write('serverType', 1 // 1 for production
+Configure::write('serverType', 1); // 1 for production
