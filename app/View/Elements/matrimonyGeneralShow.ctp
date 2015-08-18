@@ -1,3 +1,11 @@
+			<?php 
+				foreach ($viewedUser['MatrimonyUser'] as $key=>$value) {
+
+					if ($value == '') {
+						$viewedUser['MatrimonyUser'][$key] = $dataEmptyMessage;
+					}
+				}
+			?>
 			<div class="homeNews" style=" border: 0;">
 													
 					<div class="matrimonyUsers form" style="padding: 10px;">
@@ -20,7 +28,7 @@
 								</td>
 									
 								<td>
-									<?php echo h($viewedUser['AkpgUser']['name']); ?>
+									<?php echo h($viewedUser['AkpageUser']['name']); ?>
 								</td>
 							</tr>
 							
@@ -30,7 +38,7 @@
 								</td>
 									
 								<td>
-									<?php echo h($viewedUser['AkpgUser']['surname']); ?>
+									<?php echo h($viewedUser['AkpageUser']['surname']); ?>
 								</td>
 							</tr>
 							
@@ -62,7 +70,12 @@
 								<td>
 									<?php 
 										$arr = array("Unmarried", "Widower", "Divorced", "Awaiting divorce");
-										echo h($arr[$viewedUser['MatrimonyUser']['maritalStatus']]); ?>
+										if ($viewedUser['MatrimonyUser']['maritalStatus'] == $dataEmptyMessage ) {
+											echo __($dataEmptyMessage);
+										}else {
+											echo h($arr[$viewedUser['MatrimonyUser']['maritalStatus']]); 
+										}
+									?>
 								</td>
 							</tr>
 							

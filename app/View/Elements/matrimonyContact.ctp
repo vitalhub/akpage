@@ -11,7 +11,7 @@
 				<td class="capitalize"><?php echo __(h('state')); ?>
 				</td>
 
-				<td class="formTableText"><?php echo $this->Form->input('state_id', array('id'=>'state', 'type' => 'select', 'empty' => 'Select State', 'label'=> false, 'required' => true,'class' => 'form-control capitalize'));
+				<td class="formTableText"><?php echo $this->Form->input('state_id', array('id'=>'state', 'type' => 'select', 'empty' => 'Select State', 'label'=> false, 'required' => false,'class' => 'form-control capitalize'));
 				$this->Js->get('#state')->event(
 						'change',
 						$this->Js->request(
@@ -30,7 +30,7 @@
 				<td class="capitalize"><?php echo __(h('city')); ?>
 				</td>
 
-				<td class="capitalize"><?php echo $this->Form->input('city_id',array('id'=>'city', 'type' => 'select', 'empty' => 'Select City', 'label'=> false, 'required' => true, 'class' => 'form-control capitalize')); ?>
+				<td class="capitalize"><?php echo $this->Form->input('city_id',array('id'=>'city', 'type' => 'select', 'empty' => 'Select City', 'label'=> false, 'required' => false, 'class' => 'form-control capitalize')); ?>
 				</td>
 			</tr>
 
@@ -39,7 +39,7 @@
 				<td class="capitalize"><?php echo __(h('address')); ?>
 				</td>
 
-				<td class="capitalize"><?php echo $this->Form->input('address',array('label'=> false, 'class' => 'form-control capitalize', 'placeholder' => 'Ex:- 5-5-4/A, 3rd floor, Block-A, Eastern Apparments, Hyderguda.')); ?>
+				<td class="capitalize"><?php echo $this->Form->input('address',array('label'=> false, 'class' => 'form-control capitalize', 'placeholder' => 'Ex:- 5-5-4/A, 3rd floor, Block-A, Eastern Apparments, Hyderguda.', 'required' => false)); ?>
 				</td>
 			</tr>
 
@@ -66,7 +66,7 @@
 				<td class="capitalize"><?php echo __(h('phone')); ?>
 				</td>
 
-				<td class="capitalize"><?php echo $this->Form->input('AkpageUser.phone',array('type'=>'text', 'label'=> false, 'class' => 'form-control capitalize')); ?>
+				<td class="capitalize"><?php echo $this->Form->input('AkpageUser.phone',array('type'=>'text', 'label'=> false, 'class' => 'form-control capitalize', 'required' => true)); ?>
 				</td>
 			</tr>
 

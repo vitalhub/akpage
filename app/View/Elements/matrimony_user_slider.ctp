@@ -85,27 +85,22 @@
 			?>
 
 			<div>
+			
 				<?php // ******* fisrst slider image **************************  ?>
 
-				<?php //echo $this->Html->link($this->Html->image("../".$image,array('title'=>'Cover Pic', 'alt'=> 'Cover Pic', 'u' => 'image', 'width' => '1300', 'height' => '400')),array('action'=>"view", $viewId),array('escape'=>false));
-			//echo $this->Html->link($this->Html->image('homeImages/homeSliderImages/travel/14.jpg', array('data-u' => 'image')), array('controller' => 'users', 'action' => 'home'), array('escape' => false));
-			//echo $this->Html->image('homeImages/homeSliderImages/travel/thumb-14.jpg', array('data-u' => 'thumb'), array('escape' => false));
+				<?php 			
+					echo $this->Html->image("../".$image,array('title'=>'Cover Picture', 'alt'=> 'Cover Picture', 'data-u' => 'image'));
+					echo $this->Html->image("../".$image,array('title'=>'Cover Thumbnail', 'alt'=> 'Cover Thumbnail', 'data-u' => 'thumb'));
 			
-			echo $this->Html->image("../".$image,array('title'=>'Cover Picture', 'alt'=> 'Cover Picture', 'data-u' => 'image'));
-			echo $this->Html->image("../".$image,array('title'=>'Cover Thumbnail', 'alt'=> 'Cover Thumbnail', 'data-u' => 'thumb'));
+				?>
 			
-			?>
-
-
-
 			</div>
+			
 			<?php // ******* end of slider image **************************  
 				} // end of for loop
 			}else { 
-					echo "<div>";
-					//echo $this->Html->link($this->Html->image("../uploads/images/creations/creativeCover.jpg",array('title'=>'Cover Pic', 'alt'=> 'Cover Pic', 'u' => 'image', 'width' => '1300', 'height' => '400')),array('action'=>"view", $viewId),array('escape'=>false));
-					echo $this->Html->image("../uploads/images/creations/creativeCover.jpg",array('title'=>'Cover Picture', 'alt'=> 'Cover Picture', 'u' => 'image', 'width' => '1300', 'height' => '550'));
-					
+					echo "<div>";					
+					echo $this->Html->image("../uploads/images/not_uploaded.jpg",array('title'=>'Cover Picture', 'alt'=> 'Cover Picture', 'u' => 'image', 'width' => '1300', 'height' => '550'));					
 					echo "</div>";
 			}	?>
 					            

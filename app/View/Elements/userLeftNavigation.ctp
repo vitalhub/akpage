@@ -2,14 +2,16 @@
 	<div class="col-xs-12 col-sm-2 col-md-2 col-lg-2">
     	<div id="userImage">
     		<?php 
-    			if (isset($profilePic)) {
-    				echo $this->html->link($this->html->image($profilePic, array('alt' => 'Mahesh', 'title' => 'Mahesh')), array('controller' => 'matrimonyUsers', 'action' => 'matchingProfiles') , array('escape' => false));
+    			if (isset($profilePic)) {    				
+    				echo $this->html->link($this->html->image($profilePic, array('alt' => 'Profile Pic', 'title' => 'Profile Pic')), array('controller' => 'matrimonyUsers', 'action' => 'matchingProfiles') , array('escape' => false));
     			}	 
     		?>
     	</div>
 		<div id="homeMenu">
 			<?php 
 				if ($currentUser) {
+					
+					echo $this->Html->link("<span class='glyphicon glyphicon-edit'></span>"." Preview Profile", array('controller' => 'matrimonyUsers', 'action' => 'view', $matrimonyUser['MatrimonyUser']['id']), array('escape' => false));
 					echo $this->Html->link("<span class='glyphicon glyphicon-edit'></span>"." Edit Profile", array('controller' => 'matrimonyUsers', 'action' => 'edit', $currentUser['AkpageUser']['id']), array('escape' => false)); 
 				}
 			?>

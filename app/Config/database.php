@@ -7,6 +7,6 @@ class DATABASE_CONFIG {
 		'host' => 'localhost',
 		'login' => 'root',
 		'password' => 'root@123',
-		'database' => 'akpageV10',
+		'database' => 'akpageV11',
 	);
 }

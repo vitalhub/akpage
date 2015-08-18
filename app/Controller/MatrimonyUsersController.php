@@ -45,12 +45,19 @@ class MatrimonyUsersController extends AppController{
 		//$registrationLevel = $this->MatrimonyUser->field('registrationLevel', array('MatrimonyUser.Id' => $matrimonyUser['MatrimonyUser']['id']));
 
 		$matrimonyUser = $this->MatrimonyUser->find('first', array('conditions' => array('MatrimonyUser.akpageUser_id' => $this->Session->read('Auth.User.AkpageUser.id')), 'fields' => array('MatrimonyUser.id', 'MatrimonyUser.registrationLevel', 'MatrimonyUser.profilePic'), 'recursive' => -1));
+		$this->set('matrimonyUser', $matrimonyUser);
 
 		if ($matrimonyUser) {
 
 			if ($matrimonyUser['MatrimonyUser']['registrationLevel'] == 3) {
-				$profilePic = "../uploads/images/".$this->Session->read('Auth.User.AkpageUser.id')."/".$matrimonyUser['MatrimonyUser']['profilePic'];
-				$this->set('profilePic', $profilePic);
+					
+				if ($matrimonyUser['MatrimonyUser']['profilePic']) {
+					$profilePic = "../uploads/images/".$this->Session->read('Auth.User.AkpageUser.id')."/".$matrimonyUser['MatrimonyUser']['profilePic'];
+				}else {
+					$profilePic = "../uploads/images/not_uploaded.jpg";
+				}
+				
+				$this->set('profilePic', $profilePic);				
 
 			}
 
@@ -122,36 +129,36 @@ class MatrimonyUsersController extends AppController{
 		$this->layout = 'default';
 
 		if($this->currentUser){
-			
+
 			$this->loadModel('AkpageUser');
 			$akpageUserId = $this->AkpageUser->find('first',array('conditions'=>array('AkpageUser.user_id'=> $this->Session->read('Auth.User.id')),'fields' =>array('AkpageUser.id')));
 
 			if ($akpageUserId) {
-				
+
 				$options = array('conditions' => array('MatrimonyUser.akpageUser_id' => $akpageUserId['AkpageUser']['id']), 'fields' => array('MatrimonyUser.id'));
 				$matrimonyUser = $this->MatrimonyUser->find('first', $options);
 			}
 
-			if(isset($matrimonyUser) && $matrimonyUser){				
+			if(isset($matrimonyUser) && $matrimonyUser){
 
 				$registrationLevel = $this->MatrimonyUser->field('registrationLevel', array('MatrimonyUser.Id' => $matrimonyUser['MatrimonyUser']['id']));
 
-					if($registrationLevel == 3){// registration steps completed
-						$this->redirect(array('controller' => 'matrimonyUsers', 'action' => 'matchingProfiles'));
-					}
-					else{
-						$this->redirect(array('controller' => 'matrimonyUsers', 'action' => 'register'.++$registrationLevel));
-					}
-				
+				if($registrationLevel == 3){// registration steps completed
+					$this->redirect(array('controller' => 'matrimonyUsers', 'action' => 'matchingProfiles'));
+				}
+				else{
+					$this->redirect(array('controller' => 'matrimonyUsers', 'action' => 'register'.++$registrationLevel));
+				}
+
 			}else if ($akpageUserId) {
-				
+
 				$this->redirect(array('controller' => 'matrimonyUsers', 'action' => 'register1'));
 			}
 			else{
 				$this->loadModel('User');
 				$groupId = $this->User->field('group_id', array('User.id' => $this->currentUser['id']));
 				$this->Session->write('Auth.User.group_id', $groupId);
-				
+
 				if($groupId == 5){
 					$this->redirect(array('controller' => 'matrimonyUsers', 'action' => 'matrimonyHome'));
 				}else{
@@ -170,8 +177,7 @@ class MatrimonyUsersController extends AppController{
 
 	public function register0(){
 
-		if($this->request->is('post')){
-
+		if($this->request->is(array('post', 'put'))){
 
 			foreach ($this->request->data['AkpageUser'] as $key => $value) {
 					
@@ -180,7 +186,12 @@ class MatrimonyUsersController extends AppController{
 					$this->request->data['AkpageUser'][$key] = trim($this->request->data['AkpageUser'][$key]);
 
 					$this->request->data['AkpageUser'][$key] = preg_replace("/[\r\n]+/", "\n", $this->request->data['AkpageUser'][$key]);
-					$this->request->data['AkpageUser'][$key] = preg_replace("/\s+/", " ", $this->request->data['AkpageUser'][$key]);
+
+					if ($key != 'phone') {
+						$this->request->data['AkpageUser'][$key] = preg_replace("/\s+/", " ", $this->request->data['AkpageUser'][$key]);
+					}else {
+						$this->request->data['AkpageUser'][$key] = preg_replace("/\s+/", "", $this->request->data['AkpageUser'][$key]);
+					}
 				}
 					
 			}
@@ -209,15 +220,43 @@ class MatrimonyUsersController extends AppController{
 			date_default_timezone_set('Asia/Calcutta');
 			$time=date('Y-m-d H:i:s');
 			$this->request->data['AkpageUser']['user_id'] = $this->Session->read('Auth.User.id');
-			$this->request->data['AkpageUser']['created'] = $this->request->data['AkpageUser']['modified'] = $time;
 
 			$this->loadModel('AkpageUser');
-			$this->AkpageUser->create();
+			$akpageUserId = $this->AkpageUser->field('id',array('AkpageUser.user_id'=> $this->Session->read('Auth.User.id')));
+
+			if ($akpageUserId) {
+				$this->request->data['AkpageUser']['modified'] = $time;
+				$this->AkpageUser->id = $akpageUserId;
+
+			}else {
+				$this->request->data['AkpageUser']['created'] = $time;
+				$this->AkpageUser->create();
+
+				$this->Session->write('Auth.User.AkpageUser', $this->request->data['AkpageUser']);
+				$this->currentUser = $this->Session->read('Auth.User');
+			}
+
+
+
 			if($this->AkpageUser->save($this->request->data['AkpageUser'])){
+				if (!$this->Session->read('Auth.User.AkpageUser.id')) {
+					$this->Session->write('Auth.User.AkpageUser.id', $this->AkpageUser->getLastInsertID() );
+				}
+
+				//pr($this->Session->read('Auth.User.AkpageUser.id'));exit;
+
 				$this->Session->setFlash(__("Your details stored successfully"), 'default', array('class' => 'success'));
 				$this->redirect(array('action' => 'register1'));
 			}else
 				$this->Session->setFlash("problem storing your details. please enter details correctly.");
+
+		}else {
+			$this->loadModel('AkpageUser');
+			$this->request->data = $this->AkpageUser->find('first', array('conditions' => array('AkpageUser.user_id' => $this->Session->read('Auth.User.id')), 'recursive' => -1));
+
+			/* echo "<pre>";
+			 print_r($this->request->data);
+			exit; */
 		}
 
 
@@ -230,92 +269,203 @@ class MatrimonyUsersController extends AppController{
 		$states = $this->MatrimonyUser->State->find('list');
 		$this->set(compact('states'));
 
-		if($this->request->is('post')){
-			//echo "<pre>";
-			//print_r($this->request->data['MatrimonyUser']);
-			//exit;
+		if($this->request->is(array('put', 'post'))){
+			if (isset($this->request->data['next'])) {
+
+				/* echo "<pre>";
+				 print_r($this->request->data);
+				exit; */
+
+				if (isset($this->request->data['MatrimonyUser']['state_id'])) {
+					$cities = $this->MatrimonyUser->City->find('list', array('conditions' => array('City.state_id' => $this->request->data['MatrimonyUser']['state_id'])));
+					$this->set(compact('cities'));
+				}
+
+
+				foreach ($this->request->data['MatrimonyUser'] as $key => $value) {
+
+					if (in_array($key, array('gothra', 'address', 'aboutMe'))) {
+						$this->request->data['MatrimonyUser'][$key] = strip_tags($this->request->data['MatrimonyUser'][$key]);
+						$this->request->data['MatrimonyUser'][$key] = trim($this->request->data['MatrimonyUser'][$key]);
+
+						$this->request->data['MatrimonyUser'][$key] = preg_replace("/[\r\n]+/", "\n", $this->request->data['MatrimonyUser'][$key]);
+						$this->request->data['MatrimonyUser'][$key] = preg_replace("/\s+/", " ", $this->request->data['MatrimonyUser'][$key]);
+					}
+
+				}
+
+
+				if ( $this->request->data['MatrimonyUser']['gothra'] && !preg_match('/^[a-z ]+$/i', $this->request->data['MatrimonyUser']['gothra']) ) {
+
+					$this->MatrimonyUser->invalidate('gothra', __('Characters only'));
+					return  false;
+
+				}
+
+				if ( $this->request->data['MatrimonyUser']['address'] && !preg_match('/^[a-z0-9-#\/,:\. ]+$/i', $this->request->data['MatrimonyUser']['address']) ) {
+					$this->MatrimonyUser->invalidate('address', __('Special Symbols Not Allowed'));
+					return  false;
+
+				}
+
+				if ( $this->request->data['MatrimonyUser']['aboutMe'] && !preg_match('/^[a-z., ]{10,250}$/i', $this->request->data['MatrimonyUser']['aboutMe']) ) {
+					$this->MatrimonyUser->invalidate('aboutMe', 'Minimum 10 And Maximum 250 Characters Only.');
+					return  false;
+
+				}
+
+				$data = $this->request->data['MatrimonyUser'];
+				/*$json = json_encode($data);
+				 $json = json_decode($json,true);
+				unset($json['accessMode']);
+				unset($json['profilePic']);
+				$data['otherDetails'] = json_encode($json);*/
+				$this->loadModel('AkpageUser');
+				$akpageUserId = $this->AkpageUser->find('first',array('conditions'=>array('AkpageUser.user_id'=> $this->Session->read('Auth.User.id')),'fields' =>array('AkpageUser.id')));
+
+				$userId = $data['akpageUser_id'] = $akpageUserId['AkpageUser']['id'];
+				$data['registrationLevel'] = 1;
+
+				//$data['matrimonyId'] = rand(10,99).time();
+
+				if(!is_dir("../webroot/uploads/images/".$userId)){
+					if(!(mkdir("../webroot/uploads/images/".$userId,0777)))
+						die("failed to create directory");
+				}
+
+				if ($data['profilePic']['name']) {
+
+					$filepath="";
+					$img=$data['profilePic']['name'];
+
+					if (file_exists("../webroot/uploads/images/$userId/" .$img)){
+						$filepath=$img;
+					}else{
+
+						move_uploaded_file($data['profilePic']['tmp_name'], "../webroot/uploads/images/$userId/" . $img);
+						$filepath=$img;
+						chmod("../webroot/uploads/images/$userId/".$filepath,0777);
+					}
+
+					$data['profilePic'] = $filepath;
+
+				}else {
+					$data['profilePic'] = '';
+				}
+
+				//$this->Session->write('Auth.User.AkpageUser.MatrimonyUser', $data);
+
+				$matrimonyUserId = $this->MatrimonyUser->field('id',array('MatrimonyUser.akpageUser_id'=> $this->Session->read('Auth.User.AkpageUser.id')));
+				//pr($matrimonyUserId);exit;
+				if ($matrimonyUserId) {
+					//$this->request->data['MatrimonyUser']['modified'] = $time;
+					$this->MatrimonyUser->id = $matrimonyUserId;
+
+				}else {
+					//$this->request->data['Matrimony']['created'] = $time;
+					$data['matrimonyId'] = rand(10,99).time();
+					$this->MatrimonyUser->create();
+				}
+
+
+				if($this->MatrimonyUser->save($data)){
+					$this->Session->setFlash(__("Your details stored successfully. Fill step-3 details."), 'default', array('class' => 'success'));
+					$this->redirect(array('controller' => 'MatrimonyUsers', 'action' => 'register2'));
+				}else
+					$this->Session->setFlash("problem storing your details. please enter details correctly.");
+					
+			}else if (isset($this->request->data['previous'])) {
+
+				$this->redirect(array('controller' => 'MatrimonyUsers', 'action' => 'register0'));
+			}else if (isset($this->request->data['skip'])) {
+
+				$this->loadModel('AkpageUser');
+				$akpageUserId = $this->AkpageUser->field('id', array('AkpageUser.user_id'=> $this->Session->read('Auth.User.id')));
+
+				$userId = $data['akpageUser_id'] = $akpageUserId;
+				$data['registrationLevel'] = 1;
+
+				if(!is_dir("../webroot/uploads/images/".$userId)){
+					if(!(mkdir("../webroot/uploads/images/".$userId,0777)))
+						die("failed to create directory");
+				}
+
+				$matrimonyUserId = $this->MatrimonyUser->field('id',array('MatrimonyUser.akpageUser_id'=> $akpageUserId ));
+				if ($matrimonyUserId) {
+					//$this->request->data['MatrimonyUser']['modified'] = $time;
+					$this->MatrimonyUser->id = $matrimonyUserId;
+
+				}else {
+					//$this->request->data['Matrimony']['created'] = $time;
+					$data['matrimonyId'] = rand(10,99).time();
+					$this->MatrimonyUser->create();
+				}
+				if($this->MatrimonyUser->save($data)){
+					$this->redirect(array('controller' => 'MatrimonyUsers', 'action' => 'register2'));
+				}else{
+					$this->Session->setFlash("Problem Occured While Skipping Step. Please Try Again.");
+
+				}
+			}
+
+		}else {
+
+			/* $registerUser = $this->MatrimonyUser->find('first', array('conditions' => array(
+			 'MatrimonyUser.akpageUser_id' => $this->Session->read('Auth.User.AkpageUser.id')
+			),
+					'joins' => array(
+							array('table' => 'akpageUsers',
+									'alias' => 'AkpgUser',
+									'type' => 'INNER',
+									'conditions' => array(
+											'AkpgUser.id = MatrimonyUser.akpageUser_id',
+									)
+							),
+							array('table' => 'users',
+									'alias' => 'Usr',
+									'type' => 'INNER',
+									'conditions' => array(
+											'Usr.id = AkpgUser.user_id',
+									)
+							),
+							array('table' => 'states',
+									'alias' => 'Stats',
+									'type' => 'INNER',
+									'conditions' => array(
+											'Stats.id = MatrimonyUser.state_id',
+									)
+							),
+							array('table' => 'cities',
+									'alias' => 'Cits',
+									'type' => 'INNER',
+									'conditions' => array(
+											'Cits.id = MatrimonyUser.city_id',
+									)
+							)
+					),
+					'fields' => array('Usr.id', 'Usr.email','MatrimonyUser.*','AkpgUser.*', 'Stats.state', 'Cits.city')
+
+			)
+			); */
+
+
+			$this->request->data = $this->MatrimonyUser->find('first', array('conditions' => array('MatrimonyUser.akpageUser_id' => $this->Session->read('Auth.User.AkpageUser.id'))));
+
+			//$this->request->data = $registerUser;
+
+			$states = $this->MatrimonyUser->State->find('list');
+			$this->set(compact('states'));
 
 			if (isset($this->request->data['MatrimonyUser']['state_id'])) {
 				$cities = $this->MatrimonyUser->City->find('list', array('conditions' => array('City.state_id' => $this->request->data['MatrimonyUser']['state_id'])));
 				$this->set(compact('cities'));
 			}
 
-
-			foreach ($this->request->data['MatrimonyUser'] as $key => $value) {
-					
-				if (in_array($key, array('gothra', 'address', 'aboutMe'))) {
-					$this->request->data['MatrimonyUser'][$key] = strip_tags($this->request->data['MatrimonyUser'][$key]);
-					$this->request->data['MatrimonyUser'][$key] = trim($this->request->data['MatrimonyUser'][$key]);
-
-					$this->request->data['MatrimonyUser'][$key] = preg_replace("/[\r\n]+/", "\n", $this->request->data['MatrimonyUser'][$key]);
-					$this->request->data['MatrimonyUser'][$key] = preg_replace("/\s+/", " ", $this->request->data['MatrimonyUser'][$key]);
-				}
-					
-			}
-
-
-			if ( !preg_match('/^[a-z ]+$/i', $this->request->data['MatrimonyUser']['gothra']) ) {
-					
-				$this->MatrimonyUser->invalidate('gothra', __('Characters only'));
-				return  false;
-					
-			}
-
-			if ( !preg_match('/^[a-z0-9-#\/,:\. ]+$/i', $this->request->data['MatrimonyUser']['address']) ) {
-				$this->MatrimonyUser->invalidate('address', __('Special Symbols Not Allowed'));
-				return  false;
-					
-			}
-
-			if ( !preg_match('/^[a-z., ]{10,250}$/i', $this->request->data['MatrimonyUser']['aboutMe']) ) {
-				$this->MatrimonyUser->invalidate('aboutMe', 'Maximum 250 Characters only.');
-				return  false;
-					
-			}
-
-			$data = $this->request->data['MatrimonyUser'];
-			/*$json = json_encode($data);
-			 $json = json_decode($json,true);
-			unset($json['accessMode']);
-			unset($json['profilePic']);
-			$data['otherDetails'] = json_encode($json);*/
-			$this->loadModel('AkpageUser');
-			$akpageUserId = $this->AkpageUser->find('first',array('conditions'=>array('AkpageUser.user_id'=> $this->Session->read('Auth.User.id')),'fields' =>array('AkpageUser.id')));
-
-			$userId = $data['akpageUser_id'] = $akpageUserId['AkpageUser']['id'];
-			$data['registrationLevel'] = 1;
-			$data['matrimonyId'] = rand(10,99).time();
-
-
-			//echo "<pre>";
-			//print_r($this->request->data['MatrimonyUser']);
-			//exit;
-
-			if(!is_dir("../webroot/uploads/images/".$userId)){
-				if(!(mkdir("../webroot/uploads/images/".$userId,0777)))
-					die("failed to create directory");
-			}
-			$filepath="";
-			$img=$data['profilePic']['name'];
-
-			if (file_exists("../webroot/uploads/images/$userId/" .$img)){
-				$filepath=$img;
-			}else{
-
-				move_uploaded_file($data['profilePic']['tmp_name'], "../webroot/uploads/images/$userId/" . $img);
-				$filepath=$img;
-				chmod("../webroot/uploads/images/$userId/".$filepath,0777);
-			}
-
-			$data['profilePic'] = $filepath;
-
-			$this->MatrimonyUser->create();
-			if($this->MatrimonyUser->save($data)){
-				$this->Session->setFlash(__("Your details stored successfully. Fill step-3 details."), 'default', array('class' => 'success'));
-				$this->redirect(array('controller' => 'MatrimonyUsers', 'action' => 'register2'));
-			}else
-				$this->Session->setFlash("problem storing your details. please enter details correctly.");
+			/* echo "<pre>";
+			 print_r($this->request->data);
+			exit; */
 		}
+
 
 
 	}// ***************** end of register1() ************************************
@@ -324,144 +474,207 @@ class MatrimonyUsersController extends AppController{
 	public function register2(){
 
 
-		if($this->request->is('post')){
+		if($this->request->is(array('put', 'post'))){
 
+			if (isset($this->request->data['next'])) {
 
-			foreach ($this->request->data['MatrimonyUser'] as $key => $value) {
-					
-				if (!in_array($key, array('brothers', 'sisters', 'familyStatus', 'familyType', 'employedIn', 'totalAnnualIncome'))) {
-					$this->request->data['MatrimonyUser'][$key] = strip_tags($this->request->data['MatrimonyUser'][$key]);
-					$this->request->data['MatrimonyUser'][$key] = trim($this->request->data['MatrimonyUser'][$key]);
+				foreach ($this->request->data['MatrimonyUser'] as $key => $value) {
 
-					$this->request->data['MatrimonyUser'][$key] = preg_replace("/[\r\n]+/", "\n", $this->request->data['MatrimonyUser'][$key]);
-					$this->request->data['MatrimonyUser'][$key] = preg_replace("/\s+/", " ", $this->request->data['MatrimonyUser'][$key]);
+					if (!in_array($key, array('brothers', 'sisters', 'familyStatus', 'familyType', 'employedIn', 'totalAnnualIncome'))) {
+						$this->request->data['MatrimonyUser'][$key] = strip_tags($this->request->data['MatrimonyUser'][$key]);
+						$this->request->data['MatrimonyUser'][$key] = trim($this->request->data['MatrimonyUser'][$key]);
+
+						$this->request->data['MatrimonyUser'][$key] = preg_replace("/[\r\n]+/", "\n", $this->request->data['MatrimonyUser'][$key]);
+						$this->request->data['MatrimonyUser'][$key] = preg_replace("/\s+/", " ", $this->request->data['MatrimonyUser'][$key]);
+					}
+
 				}
-					
-			}
 
 
-			if ( !preg_match('/^[a-z ]+$/i', $this->request->data['MatrimonyUser']['fatherName']) ) {
-					
-				$this->MatrimonyUser->invalidate('fatherName', __('Characters only'));
-				return  false;
-					
-			}
+				if ( $this->request->data['MatrimonyUser']['fatherName'] && !preg_match('/^[a-z ]+$/i', $this->request->data['MatrimonyUser']['fatherName']) ) {
 
-			if ( !preg_match('/^[a-z ]+$/i', $this->request->data['MatrimonyUser']['motherName']) ) {
-					
-				$this->MatrimonyUser->invalidate('motherName', __('Characters only'));
-				return  false;
-					
-			}
-
-			if ( !preg_match('/^[a-z ]+$/i', $this->request->data['MatrimonyUser']['occupation']) ) {
-					
-				$this->MatrimonyUser->invalidate('occupation', __('Characters only'));
-				return  false;
-					
-			}
-
-
-			if ($this->request->data['MatrimonyUser']['company']) {
-
-					
-				if ( !preg_match('/^[a-z ]+$/i', $this->request->data['MatrimonyUser']['company']) ) {
-
-					$this->MatrimonyUser->invalidate('company', __('Characters only'));
+					$this->MatrimonyUser->invalidate('fatherName', __('Characters only'));
 					return  false;
 
 				}
-			}
 
-			if ($this->request->data['MatrimonyUser']['designation']) {
-				if ( !preg_match('/^[a-z ]+$/i', $this->request->data['MatrimonyUser']['designation']) ) {
+				if ( $this->request->data['MatrimonyUser']['motherName'] && !preg_match('/^[a-z ]+$/i', $this->request->data['MatrimonyUser']['motherName']) ) {
 
-					$this->MatrimonyUser->invalidate('designation', __('Characters only'));
+					$this->MatrimonyUser->invalidate('motherName', __('Characters only'));
 					return  false;
+
+				}
+
+				if ( $this->request->data['MatrimonyUser']['occupation'] && !preg_match('/^[a-z ]+$/i', $this->request->data['MatrimonyUser']['occupation']) ) {
+
+					$this->MatrimonyUser->invalidate('occupation', __('Characters only'));
+					return  false;
+
+				}
+
+
+				if ($this->request->data['MatrimonyUser']['company']) {
+
+
+					if ( !preg_match('/^[a-z ]+$/i', $this->request->data['MatrimonyUser']['company']) ) {
+
+						$this->MatrimonyUser->invalidate('company', __('Characters only'));
+						return  false;
+
+					}
+				}
+
+				if ($this->request->data['MatrimonyUser']['designation']) {
+					if ( !preg_match('/^[a-z ]+$/i', $this->request->data['MatrimonyUser']['designation']) ) {
+
+						$this->MatrimonyUser->invalidate('designation', __('Characters only'));
+						return  false;
+
+					}
+				}
+
+				if ($this->request->data['MatrimonyUser']['businessName']) {
+					if ( !preg_match('/^[a-z ]+$/i', $this->request->data['MatrimonyUser']['businessName']) ) {
+
+						$this->MatrimonyUser->invalidate('businessName', __('Characters only'));
+						return  false;
+
+					}
+				}
+
+				if ( $this->request->data['MatrimonyUser']['qualification'] && !preg_match('/^[a-z\/. ]+$/i', $this->request->data['MatrimonyUser']['qualification']) ) {
+
+					$this->MatrimonyUser->invalidate('qualification', __('Characters only'));
+					return  false;
+
+				}
+
+				if ( $this->request->data['MatrimonyUser']['collegeName'] && !preg_match('/^[a-z. ]+$/i', $this->request->data['MatrimonyUser']['collegeName']) ) {
+
+					$this->MatrimonyUser->invalidate('collegeName', __('Characters only'));
+					return  false;
+
+				}
+
+
+				if ( $this->request->data['MatrimonyUser']['university'] && !preg_match('/^[a-z. ]+$/i', $this->request->data['MatrimonyUser']['university']) ) {
+
+					$this->MatrimonyUser->invalidate('university', __('Characters only'));
+					return  false;
+
+				}
+
+
+				if ( $this->request->data['MatrimonyUser']['achievements'] && !preg_match('/^[a-z0-9., ]{10,250}$/i', $this->request->data['MatrimonyUser']['achievements']) ) {
+					$this->MatrimonyUser->invalidate('achievements', 'Minimum 10 and Maximum 250 Characters only.');
+					return  false;
+
+				}
+
+
+
+
+				$family = $profession = $education = $this->request->data['MatrimonyUser'];
+
+				$family = array('fatherName'=>$family['fatherName'], 'motherName'=>$family['motherName'], 'brothers'=>$family['brothers'], 'sisters'=>$family['sisters'], 'familyStatus'=>$family['familyStatus'], 'familyType'=>$family['familyType']);
+
+				$profession = array('employedIn'=>$profession['employedIn'], 'occupation'=>$profession['occupation'], 'company'=>$profession['company'], 'designation'=>$profession['designation'], 'businessName'=>$profession['businessName'], 'totalAnnualIncome'=>$profession['totalAnnualIncome']);
+
+				//$education = array('qualification'=>$education['qualification'], 'collegeName'=>$education['collegeName'], 'university'=>$education['university'], 'achievements'=>$education['achievements']);
+				$education = array('collegeName'=>$education['collegeName'], 'university'=>$education['university'], 'achievements'=>$education['achievements']);
+
+
+				//$this->request->data['MatrimonyUser']['familyDetails'] = json_encode($family);
+				//$this->request->data['MatrimonyUser']['professionalDetails'] = json_encode($proffession);
+				//$this->request->data['MatrimonyUser']['educationalDetails'] = json_encode($education);
+				//$this->request->data['MatrimonyUser']['user_id'] = $this->Session->read('Auth.User.id');
+				//$this->request->data['MatrimonyUser']['registrationLevel'] = 2;
+
+				$family = json_encode($family);
+				$profession = json_encode($profession);
+				$education = json_encode($education);
+
+				$this->loadModel('AkpageUser');
+				$akpageUserId = $this->AkpageUser->find('first',array('conditions'=>array('AkpageUser.user_id'=> $this->Session->read('Auth.User.id')),'fields' =>array('AkpageUser.id')));
+
+				/*echo "<pre>";
+				 print_r($this->request->data['MatrimonyUser']);
+				echo "<pre>";
+				print_r($family);
+				echo "<pre>";
+				print_r($profession);
+				echo "<pre>";
+				print_r($education);
+				exit;	*/
+				//$this->MatrimonyUser->create();
+				$fields = array('MatrimonyUser.familyDetails'=>"'".$family."'",'MatrimonyUser.professionalDetails'=>"'".$profession."'",'MatrimonyUser.educationalDetails'=>"'".$education."'",'MatrimonyUser.registrationLevel'=>'2', 'MatrimonyUser.qualification'=> "'".$this->request->data['MatrimonyUser']['qualification']."'");
+				if($this->MatrimonyUser->updateAll($fields,array('MatrimonyUser.akpageUser_id'=>$akpageUserId['AkpageUser']['id']))){
+					$this->Session->setFlash(__("Your details stored successfully. Fill final step details."), 'default', array('class' => 'success'));
+					$this->redirect(array('controller' => 'MatrimonyUsers', 'action' => 'register3'));
+				}else
+					$this->Session->setFlash("problem storing your details. please enter details correctly.");
+			}else if (isset($this->request->data['previous'])) {
+
+				$this->redirect(array('controller' => 'MatrimonyUsers', 'action' => 'register1'));
+			}else if (isset($this->request->data['skip'])) {
+
+				$this->loadModel('AkpageUser');
+				$akpageUserId = $this->AkpageUser->field('id',array('AkpageUser.user_id'=> $this->Session->read('Auth.User.id')));
+
+				$data['registrationLevel'] = 2;
+
+				$this->MatrimonyUser->id = $this->MatrimonyUser->field('id', array('akpageUser_id' => $akpageUserId));
+				if($this->MatrimonyUser->save($data)){
+					$this->redirect(array('controller' => 'MatrimonyUsers', 'action' => 'register3'));
+				}else{
+					$this->Session->setFlash("Problem Occured While Skipping Step. Please Try Again.");
 
 				}
 			}
 
-			if ($this->request->data['MatrimonyUser']['businessName']) {
-				if ( !preg_match('/^[a-z ]+$/i', $this->request->data['MatrimonyUser']['businessName']) ) {
+		}else {
 
-					$this->MatrimonyUser->invalidate('businessName', __('Characters only'));
-					return  false;
+			$matrimonyUserDetails = $this->MatrimonyUser->find('first', array('conditions' => array('MatrimonyUser.akpageUser_id' => $this->Session->read('Auth.User.AkpageUser.id'))));
 
+			$this->request->data = $matrimonyUserDetails;
+				
+			$familyDetails = $educationalDetails = $professionalDetails = array();
+
+			if ($matrimonyUserDetails) {
+				$familyDetails = json_decode($matrimonyUserDetails['MatrimonyUser']['familyDetails'],true);
+				$educationalDetails = json_decode($matrimonyUserDetails['MatrimonyUser']['educationalDetails'],true);
+				$professionalDetails = json_decode($matrimonyUserDetails['MatrimonyUser']['professionalDetails'],true);
+			}
+
+			if ($familyDetails) {
+				foreach ($familyDetails as $key=>$value) {
+					$this->request->data['MatrimonyUser'][$key] = $value;
 				}
 			}
 
-			if ( !preg_match('/^[a-z\/. ]+$/i', $this->request->data['MatrimonyUser']['qualification']) ) {
-					
-				$this->MatrimonyUser->invalidate('qualification', __('Characters only'));
-				return  false;
-					
+			if ($educationalDetails) {
+				foreach ($educationalDetails as $key=>$value) {
+					$this->request->data['MatrimonyUser'][$key] = $value;
+				}
 			}
 
-			if ( !preg_match('/^[a-z. ]+$/i', $this->request->data['MatrimonyUser']['collegeName']) ) {
-					
-				$this->MatrimonyUser->invalidate('collegeName', __('Characters only'));
-				return  false;
-					
+			if ($professionalDetails) {
+				foreach ($professionalDetails as $key=>$value) {
+					$this->request->data['MatrimonyUser'][$key] = $value;
+				}
 			}
 
+			$states = $this->MatrimonyUser->State->find('list');
+			$this->set(compact('states'));
 
-			if ( !preg_match('/^[a-z. ]+$/i', $this->request->data['MatrimonyUser']['university']) ) {
-					
-				$this->MatrimonyUser->invalidate('university', __('Characters only'));
-				return  false;
-					
+			if (isset($this->request->data['MatrimonyUser']['state_id'])) {
+				$cities = $this->MatrimonyUser->City->find('list', array('conditions' => array('City.state_id' => $this->request->data['MatrimonyUser']['state_id'])));
+				$this->set(compact('cities'));
 			}
 
-
-			if ( !preg_match('/^[a-z0-9., ]{10,250}$/i', $this->request->data['MatrimonyUser']['achievements']) ) {
-				$this->MatrimonyUser->invalidate('achievements', 'Minimum 10 and Maximum 250 Characters only.');
-				return  false;
-					
-			}
-
-
-
-
-			$family = $profession = $education = $this->request->data['MatrimonyUser'];
-
-			$family = array('fatherName'=>$family['fatherName'], 'motherName'=>$family['motherName'], 'brothers'=>$family['brothers'], 'sisters'=>$family['sisters'], 'familyStatus'=>$family['familyStatus'], 'familyType'=>$family['familyType']);
-
-			$profession = array('employedIn'=>$profession['employedIn'], 'occupation'=>$profession['occupation'], 'company'=>$profession['company'], 'designation'=>$profession['designation'], 'businessName'=>$profession['businessName'], 'totalAnnualIncome'=>$profession['totalAnnualIncome']);
-
-			//$education = array('qualification'=>$education['qualification'], 'collegeName'=>$education['collegeName'], 'university'=>$education['university'], 'achievements'=>$education['achievements']);
-			$education = array('collegeName'=>$education['collegeName'], 'university'=>$education['university'], 'achievements'=>$education['achievements']);
-
-
-			//$this->request->data['MatrimonyUser']['familyDetails'] = json_encode($family);
-			//$this->request->data['MatrimonyUser']['professionalDetails'] = json_encode($proffession);
-			//$this->request->data['MatrimonyUser']['educationalDetails'] = json_encode($education);
-			//$this->request->data['MatrimonyUser']['user_id'] = $this->Session->read('Auth.User.id');
-			//$this->request->data['MatrimonyUser']['registrationLevel'] = 2;
-
-			$family = json_encode($family);
-			$profession = json_encode($profession);
-			$education = json_encode($education);
-
-			$this->loadModel('AkpageUser');
-			$akpageUserId = $this->AkpageUser->find('first',array('conditions'=>array('AkpageUser.user_id'=> $this->Session->read('Auth.User.id')),'fields' =>array('AkpageUser.id')));
-
-			/*echo "<pre>";
-			 print_r($this->request->data['MatrimonyUser']);
-			echo "<pre>";
-			print_r($family);
-			echo "<pre>";
-			print_r($profession);
-			echo "<pre>";
-			print_r($education);
-			exit;	*/
-			//$this->MatrimonyUser->create();
-			$fields = array('MatrimonyUser.familyDetails'=>"'".$family."'",'MatrimonyUser.professionalDetails'=>"'".$profession."'",'MatrimonyUser.educationalDetails'=>"'".$education."'",'MatrimonyUser.registrationLevel'=>'2', 'MatrimonyUser.qualification'=> "'".$this->request->data['MatrimonyUser']['qualification']."'");
-			if($this->MatrimonyUser->updateAll($fields,array('MatrimonyUser.akpageUser_id'=>$akpageUserId['AkpageUser']['id']))){
-				$this->Session->setFlash(__("Your details stored successfully. Fill final step details."), 'default', array('class' => 'success'));
-				$this->redirect(array('controller' => 'MatrimonyUsers', 'action' => 'register3'));
-			}else
-				$this->Session->setFlash("problem storing your details. please enter details correctly.");
+			/* echo "<pre>";
+			 print_r($familyDetails);
+			exit;  */
 		}
 
 
@@ -473,52 +686,99 @@ class MatrimonyUsersController extends AppController{
 		$partnerStates = $this->MatrimonyUser->State->find('list');
 		$this->set(compact('partnerStates'));
 
-		if($this->request->is('post')){
+		if($this->request->is(array('put', 'post'))){
+
+			if (isset($this->request->data['next'])) {
+				if (isset($this->request->data['MatrimonyUser']['state_id'])) {
+					$cities = $this->MatrimonyUser->City->find('list', array('conditions' => array('City.state_id' => $this->request->data['MatrimonyUser']['state_id'])));
+					$this->set(compact('cities'));
+				}
+
+				foreach ($this->request->data['MatrimonyUser'] as $key => $value) {
+
+					if (in_array($key, array('partnerQualification', 'aboutPartner'))) {
+						$this->request->data['MatrimonyUser'][$key] = strip_tags($this->request->data['MatrimonyUser'][$key]);
+						$this->request->data['MatrimonyUser'][$key] = trim($this->request->data['MatrimonyUser'][$key]);
+
+						$this->request->data['MatrimonyUser'][$key] = preg_replace("/[\r\n]+/", "\n", $this->request->data['MatrimonyUser'][$key]);
+						$this->request->data['MatrimonyUser'][$key] = preg_replace("/\s+/", " ", $this->request->data['MatrimonyUser'][$key]);
+					}
+
+				}
+
+
+				if ( $this->request->data['MatrimonyUser']['partnerQualification'] && !preg_match('/^[a-z. ]+$/i', $this->request->data['MatrimonyUser']['partnerQualification']) ) {
+
+					$this->MatrimonyUser->invalidate('partnerQualification', __('Characters only'));
+					return  false;
+
+				}
+
+
+				if ( $this->request->data['MatrimonyUser']['aboutPartner'] && !preg_match('/^[a-z0-9., ]{10,250}$/i', $this->request->data['MatrimonyUser']['aboutPartner']) ) {
+					$this->MatrimonyUser->invalidate('aboutPartner', 'Minimum 10 and Maximum 250 Characters only.');
+					return  false;
+
+				}
+
+				$this->loadModel('AkpageUser');
+				$akpageUserId = $this->AkpageUser->find('first',array('conditions'=>array('AkpageUser.user_id'=> $this->Session->read('Auth.User.id')),'fields' =>array('AkpageUser.id')));
+
+				$partner = json_encode($this->request->data['MatrimonyUser']);
+				//$this->request->data['MatrimonyUser']['akpageuser_id'] = $akpageUserId['AkpageUser']['id'];
+
+				$fields = array('MatrimonyUser.partnerDetails'=>"'".$partner."'",'MatrimonyUser.registrationLevel'=>'3');
+				if($this->MatrimonyUser->updateAll($fields,array('MatrimonyUser.akpageUser_id'=>$akpageUserId['AkpageUser']['id']))){
+					$this->Session->setFlash(__("Details stored successfully. Thank you for providing details."), 'default', array('class' => 'success'));
+					$this->redirect(array('controller' => 'matrimonyUsers', 'action' => 'matchingProfiles'));
+				}else
+					$this->Session->setFlash("problem storing your details. please enter details correctly.");
+			}else if (isset($this->request->data['previous'])) {
+					
+				$this->redirect(array('controller' => 'MatrimonyUsers', 'action' => 'register2'));
+			}else if (isset($this->request->data['skip'])) {
+
+				$this->loadModel('AkpageUser');
+				$akpageUserId = $this->AkpageUser->field('id',array('AkpageUser.user_id'=> $this->Session->read('Auth.User.id')));
+
+				$data['registrationLevel'] = 3;
+
+				$this->MatrimonyUser->id = $this->MatrimonyUser->field('id', array('akpageUser_id' => $akpageUserId));
+				if($this->MatrimonyUser->save($data)){
+					$this->redirect(array('controller' => 'MatrimonyUsers', 'action' => 'matchingProfiles'));
+				}else{
+					$this->Session->setFlash("Problem Occured While Skipping Step. Please Try Again.");
+
+				}
+			}
+
+		}else {
+
+			$matrimonyUserDetails = $this->MatrimonyUser->find('first', array('conditions' => array('MatrimonyUser.akpageUser_id' => $this->Session->read('Auth.User.AkpageUser.id'))));
+
+			//$this->request->data = $matrimonyUserDetails;
+			$partnerDetails = array();
+			if ($matrimonyUserDetails) {
+				$partnerDetails = json_decode($matrimonyUserDetails['MatrimonyUser']['partnerDetails'],true);
+			}
+
+			if ($partnerDetails) {
+				foreach ($partnerDetails as $key=>$value) {
+					$this->request->data['MatrimonyUser'][$key] = $value;
+				}
+			}
+
+			$states = $this->MatrimonyUser->State->find('list');
+			$this->set(compact('states'));
 
 			if (isset($this->request->data['MatrimonyUser']['state_id'])) {
 				$cities = $this->MatrimonyUser->City->find('list', array('conditions' => array('City.state_id' => $this->request->data['MatrimonyUser']['state_id'])));
 				$this->set(compact('cities'));
 			}
 
-			foreach ($this->request->data['MatrimonyUser'] as $key => $value) {
-					
-				if (in_array($key, array('partnerQualification', 'aboutPartner'))) {
-					$this->request->data['MatrimonyUser'][$key] = strip_tags($this->request->data['MatrimonyUser'][$key]);
-					$this->request->data['MatrimonyUser'][$key] = trim($this->request->data['MatrimonyUser'][$key]);
-
-					$this->request->data['MatrimonyUser'][$key] = preg_replace("/[\r\n]+/", "\n", $this->request->data['MatrimonyUser'][$key]);
-					$this->request->data['MatrimonyUser'][$key] = preg_replace("/\s+/", " ", $this->request->data['MatrimonyUser'][$key]);
-				}
-					
-			}
-
-
-			if ( !preg_match('/^[a-z. ]+$/i', $this->request->data['MatrimonyUser']['partnerQualification']) ) {
-					
-				$this->MatrimonyUser->invalidate('partnerQualification', __('Characters only'));
-				return  false;
-					
-			}
-
-
-			if ( !preg_match('/^[a-z0-9., ]{10,250}$/i', $this->request->data['MatrimonyUser']['aboutPartner']) ) {
-				$this->MatrimonyUser->invalidate('aboutPartner', 'Minimum 10 and Maximum 250 Characters only.');
-				return  false;
-					
-			}
-
-			$this->loadModel('AkpageUser');
-			$akpageUserId = $this->AkpageUser->find('first',array('conditions'=>array('AkpageUser.user_id'=> $this->Session->read('Auth.User.id')),'fields' =>array('AkpageUser.id')));
-
-			$partner = json_encode($this->request->data['MatrimonyUser']);
-			//$this->request->data['MatrimonyUser']['akpageuser_id'] = $akpageUserId['AkpageUser']['id'];
-
-			$fields = array('MatrimonyUser.partnerDetails'=>"'".$partner."'",'MatrimonyUser.registrationLevel'=>'3');
-			if($this->MatrimonyUser->updateAll($fields,array('MatrimonyUser.akpageUser_id'=>$akpageUserId['AkpageUser']['id']))){
-				$this->Session->setFlash(__("Details stored successfully. Thank you for providing details."), 'default', array('class' => 'success'));
-				$this->redirect(array('controller' => 'matrimonyUsers', 'action' => 'matchingProfiles'));
-			}else
-				$this->Session->setFlash("problem storing your details. please enter details correctly.");
+			/* echo "<pre>";
+			 print_r($familyDetails);
+			exit;  */
 		}
 
 
@@ -538,138 +798,124 @@ class MatrimonyUsersController extends AppController{
 
 			$partnerDetails = $this->MatrimonyUser->find('first', array ("conditions" => array("MatrimonyUser.akpageUser_id" => $akpageUser['AkpageUser']['id']),"fields" => array("MatrimonyUser.partnerDetails")));
 			$partnerDetails = json_decode($partnerDetails['MatrimonyUser']['partnerDetails'],true);
-
-			$partnerDetails['gender']=$akpageUser['AkpageUser']['gender'];
-
-
-			$partnerDetails['fromAge']=$this->datecalc($partnerDetails['fromAge']);
-			$partnerDetails['toAge']=$this->datecalc($partnerDetails['toAge']);
-
-			//$this->MatrimonyUser->recursive = -1;
-
+			
 			$this->loadModel('SiteConstant');
 			$pageLimit = $this->SiteConstant->field('value', array('SiteConstant.siteconstant' => 'PAGE_LIMIT'));
 
-			/* echo "<pre>";
-			 print_r($pageLimit);
-			exit; */
-			//$pageLimit = 1;
+			if ($partnerDetails) {
 
-			$paginate = array(
-					'limit' => $pageLimit,
-					'conditions' => array(
-							"MatrimonyUser.qualification" => $partnerDetails['partnerQualification'],
-							"AkpgUser.gender !=" =>$partnerDetails['gender'],
-							"MatrimonyUser.height >" => "'".$partnerDetails['partnerHeight']."'",
-							"MatrimonyUser.city_id" => $partnerDetails['partnerCity_id'],
-							"MatrimonyUser.state_id" => $partnerDetails['partnerState_id'],
-							"MatrimonyUser.smoking" => $partnerDetails['partnerSmoking'],
-							"MatrimonyUser.drinking" => $partnerDetails['partnerDrinking'],
-							"MatrimonyUser.aboutMe LIKE" => '%'. $partnerDetails['aboutPartner'] . '%',
-							array('AkpgUser.dob <=' => $partnerDetails['fromAge'], 'AkpgUser.dob >=' => $partnerDetails['toAge'])
-					),
-					'joins' => array(
-							array('table' => 'akpageUsers',
-									'alias' => 'AkpgUser',
-									'type' => 'INNER',
-									'conditions' => array(
-											'AkpgUser.id = MatrimonyUser.akpageUser_id',
-									)
-							)
-					)
-
-			);
-
-			/* $matches=$this->MatrimonyUser->find('all', array('conditions' => array(
-			 "MatrimonyUser.qualification" => $partnerDetails['qualification'],
-					"AkpgUser.gender !=" =>$partnerDetails['gender'],
-					"MatrimonyUser.height >" => "'".$partnerDetails['height']."'",
-					"MatrimonyUser.city_id" => $partnerDetails['city_id'],
-					"MatrimonyUser.smoking" => $partnerDetails['smoking'],
-					"MatrimonyUser.drinking" => $partnerDetails['drinking'],
-					"MatrimonyUser.aboutMe LIKE" => '%'. $partnerDetails['aboutPartner'] . '%',
-					array('AkpgUser.dob <=' => $partnerDetails['fromAge'], 'AkpgUser.dob >=' => $partnerDetails['toAge'])
-			),
-					'joins' => array(
-							array('table' => 'akpageUsers',
-									'alias' => 'AkpgUser',
-									'type' => 'INNER',
-									'conditions' => array(
-											'AkpgUser.id = MatrimonyUser.akpageUser_id',
-									)
-							)
-					)
-			)); */
-			/*echo "<pre>";
-			 print_r($matches);
-			exit;*/
-			//pr($matches);exit;
-
-			//$this->set('matches',$matches);
-
-			$this->Paginator->settings = $paginate;
-			$matches = $this->Paginator->paginate();
-
-			if($matches){
+				$partnerDetails['fromAge'] = $partnerDetails['toAge'] = '';
+				if ($partnerDetails) {
+					$partnerDetails['fromAge']=$this->datecalc($partnerDetails['fromAge']);
+					$partnerDetails['toAge']=$this->datecalc($partnerDetails['toAge']);
+				}
+				
+				$partnerDetails['gender']=$akpageUser['AkpageUser']['gender'];
 					
-				//$this->Session->setFlash('Perfect matching profiles for you', 'default', array('class' => 'success'));
-				$msg = "Matching Profiles";
-
-			}else{
-
-				$paginate = array('limit' => $pageLimit, 'conditions' => array(
-						"or"=>array("MatrimonyUser.qualification" => $partnerDetails['partnerQualification'],
+				$paginate = array(
+						'limit' => $pageLimit,
+						'conditions' => array(
+								"MatrimonyUser.qualification" => $partnerDetails['partnerQualification'],
+								"AkpgUser.gender !=" =>$partnerDetails['gender'],
 								"MatrimonyUser.height >" => "'".$partnerDetails['partnerHeight']."'",
 								"MatrimonyUser.city_id" => $partnerDetails['partnerCity_id'],
 								"MatrimonyUser.state_id" => $partnerDetails['partnerState_id'],
 								"MatrimonyUser.smoking" => $partnerDetails['partnerSmoking'],
 								"MatrimonyUser.drinking" => $partnerDetails['partnerDrinking'],
 								"MatrimonyUser.aboutMe LIKE" => '%'. $partnerDetails['aboutPartner'] . '%',
-								array('AkpgUser.dob <=' => $partnerDetails['fromAge'], 'AkpgUser.dob >=' => $partnerDetails['toAge'])),
-						"AkpgUser.gender !=" =>$partnerDetails['gender'])
-						,'joins' => array(
-								array('table' => 'akpageUsers',
-										'alias' => 'AkpgUser',
-										'type' => 'INNER',
-										'conditions' => array(
-								    'AkpgUser.id = MatrimonyUser.akpageUser_id',
-										)
-								)
-						)
-				);
-
-				/* $matches=$this->MatrimonyUser->find('all', array('conditions' => array(
-				 "or"=>array("MatrimonyUser.qualification" => $partnerDetails['qualification'],
-				 		"MatrimonyUser.height >" => "'".$partnerDetails['height']."'",
-				 		"MatrimonyUser.city_id" => $partnerDetails['city_id'],
-				 		"MatrimonyUser.smoking" => $partnerDetails['smoking'],
-				 		"MatrimonyUser.drinking" => $partnerDetails['drinking'],
-				 		"MatrimonyUser.aboutMe LIKE" => '%'. $partnerDetails['aboutPartner'] . '%',
-				 		array('AkpgUser.dob <=' => $partnerDetails['fromAge'], 'AkpgUser.dob >=' => $partnerDetails['toAge'])),
-						"AkpgUser.gender !=" =>$partnerDetails['gender']),
+								array('AkpgUser.dob <=' => $partnerDetails['fromAge'], 'AkpgUser.dob >=' => $partnerDetails['toAge'])
+						),
 						'joins' => array(
 								array('table' => 'akpageUsers',
 										'alias' => 'AkpgUser',
 										'type' => 'INNER',
 										'conditions' => array(
-								    'AkpgUser.id = MatrimonyUser.akpageUser_id',
+												'AkpgUser.id = MatrimonyUser.akpageUser_id',
 										)
 								)
 						)
-				)); */
-				//$this->set('matches',$matches);
 
+				);
+
+					
 				$this->Paginator->settings = $paginate;
 				$matches = $this->Paginator->paginate();
 
-				if($matches)
-					//$this->Session->setFlash('profiles recommended for you', 'default', array('class' => 'success'));
-					$msg = "Recommended Profiles";
-				else
-					//$this->Session->setFlash('No matches for you');
-					$msg = "No Matches";
+				if($matches){
+						
+					$msg = "Matching Profiles";
 
+				}else{
+
+					$paginate = array('limit' => $pageLimit, 'conditions' => array(
+							"or"=>array("MatrimonyUser.qualification" => $partnerDetails['partnerQualification'],
+									"MatrimonyUser.height >" => "'".$partnerDetails['partnerHeight']."'",
+									"MatrimonyUser.city_id" => $partnerDetails['partnerCity_id'],
+									"MatrimonyUser.state_id" => $partnerDetails['partnerState_id'],
+									"MatrimonyUser.smoking" => $partnerDetails['partnerSmoking'],
+									"MatrimonyUser.drinking" => $partnerDetails['partnerDrinking'],
+									"MatrimonyUser.aboutMe LIKE" => '%'. $partnerDetails['aboutPartner'] . '%',
+									array('AkpgUser.dob <=' => $partnerDetails['fromAge'], 'AkpgUser.dob >=' => $partnerDetails['toAge'])),
+							"AkpgUser.gender !=" =>$partnerDetails['gender'])
+							,'joins' => array(
+									array('table' => 'akpageUsers',
+											'alias' => 'AkpgUser',
+											'type' => 'INNER',
+											'conditions' => array(
+													'AkpgUser.id = MatrimonyUser.akpageUser_id',
+											)
+									)
+							)
+					);
+
+
+					$this->Paginator->settings = $paginate;
+					$matches = $this->Paginator->paginate();
+
+					if($matches)
+						$msg = "Recommended Profiles";
+					else
+						$msg = "No Matches";
+
+				}
+				
+				
+			}else { // if user did not provided partner preferences
+				
+				$partnerDetails['gender']=$akpageUser['AkpageUser']['gender'];
+				
+				if ($partnerDetails['gender']) { // i.e matches for brides
+					$partnerDetails['fromAge'] = $this->datecalc(21);
+					$partnerDetails['toAge'] = $this->datecalc(35);
+				}else {
+					$partnerDetails['fromAge'] = $this->datecalc(18);
+					$partnerDetails['toAge'] = $this->datecalc(35);
+				}
+				
+				$paginate = array(
+						'limit' => $pageLimit,
+						'conditions' => array(								
+								"AkpgUser.gender !=" =>$partnerDetails['gender'],								
+								array('AkpgUser.dob <=' => $partnerDetails['fromAge'], 'AkpgUser.dob >=' => $partnerDetails['toAge'])
+						),
+						'joins' => array(
+								array('table' => 'akpageUsers',
+										'alias' => 'AkpgUser',
+										'type' => 'INNER',
+										'conditions' => array(
+												'AkpgUser.id = MatrimonyUser.akpageUser_id',
+										)
+								)
+						)
+
+				);
+				
+				$this->Paginator->settings = $paginate;
+				$matches = $this->Paginator->paginate();
+				
+				$msg = "Recommended Profiles";
 			}
+			
 
 			$this->set('msg', $msg);
 
@@ -795,7 +1041,7 @@ class MatrimonyUsersController extends AppController{
 		}else {
 			$this->layout = 'matrimony';
 		}
-		
+
 		if ($this->Session->read('Auth.User.group_id') == 5 ) {
 			$this->Session->setFlash(__("You Need To Complete Your Registration To View Details."));
 			$this->redirect(array('controller' => 'users', 'action' => 'emailVerify'));
@@ -803,7 +1049,7 @@ class MatrimonyUsersController extends AppController{
 
 		// ****** checking login users groupId
 		if($this->Session->read('Auth.User.id')){
-			if ($this->Session->read('Auth.User.group_id') != 2) {
+			if ( ($this->Session->read('Auth.User.group_id') != 2) || ($matrimonyUser['MatrimonyUser']['id'] != $id) ) {
 				$loggedUser = $this->MatrimonyUser->find('first', array('conditions' => array(
 						'Usr.id' => $this->Session->read('Auth.User.id')
 				),
@@ -831,9 +1077,10 @@ class MatrimonyUsersController extends AppController{
 			//pr($loggedUser);exit;
 
 
-			//$viewedUser = $this->MatrimonyUser->find('first', array('conditions' => array('MatrimonyUser.id' => $id), 'recursive' => 0));
-
 			$viewedUser = $this->MatrimonyUser->find('first', array('conditions' => array(
+					'MatrimonyUser.id' => $id), 'recursive' => 2));
+
+			/* $viewedUser = $this->MatrimonyUser->find('first', array('conditions' => array(
 					'MatrimonyUser.id' => $id
 			),
 					'joins' => array(
@@ -869,17 +1116,22 @@ class MatrimonyUsersController extends AppController{
 					'fields' => array('Usr.email','MatrimonyUser.*','AkpgUser.*', 'Stats.state', 'Cits.city')
 
 			)
-			);
+			); */
 			//pr($viewedUser);exit;
 			$this->set('viewedUser',$viewedUser);
-			
-			$partnerDetails = json_decode($viewedUser['MatrimonyUser']['partnerDetails'],true);
-			$partnerDetails['partnerState'] = $this->MatrimonyUser->State->field('state', array('State.id' => $partnerDetails['partnerState_id']));
-			$partnerDetails['partnerCity'] = $this->MatrimonyUser->City->field('city', array('City.id' => $partnerDetails['partnerCity_id']));
-			
-			$this->set('partnerDetails', $partnerDetails);			
 
-			if ($this->Session->read('Auth.User.group_id') != 2) {
+			$partnerDetails = array();
+			if ($viewedUser['MatrimonyUser']['partnerDetails']) {
+				
+				$partnerDetails = json_decode($viewedUser['MatrimonyUser']['partnerDetails'],true);
+				$partnerDetails['partnerState'] = $this->MatrimonyUser->State->field('state', array('State.id' => $partnerDetails['partnerState_id']));
+				$partnerDetails['partnerCity'] = $this->MatrimonyUser->City->field('city', array('City.id' => $partnerDetails['partnerCity_id']));
+				
+			}
+			
+			$this->set('partnerDetails', $partnerDetails);
+
+			if ( ($this->Session->read('Auth.User.group_id') != 2) || ($matrimonyUser['MatrimonyUser']['id'] != $id) ) {
 
 				$this->set('loggedUser',$loggedUser);
 				$this->set('groupId',$loggedUser['Usr']['group_id']);
@@ -1174,7 +1426,7 @@ class MatrimonyUsersController extends AppController{
 
 					$this->redirect(array('action' => 'uploadPhotos'));
 				}else{
-					
+
 					$this->Session->setFlash(__('Photos Uploaded Successfully'), 'default' , array('class' => 'success'));
 					$this->redirect($this->referer());
 				}
@@ -1768,8 +2020,8 @@ class MatrimonyUsersController extends AppController{
 		}
 
 
-		$editUser = $this->MatrimonyUser->find('first', array('conditions' => array(
-				'MatrimonyUser.akpageUser_id' => $id
+		/* $editUser = $this->MatrimonyUser->find('first', array('conditions' => array(
+		 'MatrimonyUser.akpageUser_id' => $id
 		),
 				'joins' => array(
 						array('table' => 'akpageUsers',
@@ -1804,7 +2056,14 @@ class MatrimonyUsersController extends AppController{
 				'fields' => array('Usr.id', 'Usr.email','MatrimonyUser.*','AkpgUser.*', 'Stats.state', 'Cits.city')
 
 		)
-		);
+		); */
+
+		$editUser = $this->MatrimonyUser->find('first', array('conditions' => array(
+				'MatrimonyUser.akpageUser_id' => $id), 'recursive' => 2));
+
+		/* echo "<pre>";
+		 print_r($editUser);
+		exit; */
 
 		//pr($this->Session->read('Auth.User.AkpageUser.id')); exit;
 
@@ -1812,9 +2071,9 @@ class MatrimonyUsersController extends AppController{
 
 			$this->Session->setFlash("Sorry...!. You are not Allowed to Edit Details of Others.");
 			$this->redirect(array('controller' => 'users', 'action' => 'home'));
-				
+
 		}else{
-				
+
 			$editTab = 1;
 
 			if ($this->request->is(array('post','put'))) {
@@ -1891,14 +2150,14 @@ class MatrimonyUsersController extends AppController{
 
 				}
 
-				if ( isset($this->request->data['MatrimonyUser']['qualification']) && !preg_match('/^[a-z\/. ]+$/i', $this->request->data['MatrimonyUser']['qualification']) ) {
+				if ( isset($this->request->data['MatrimonyUser']['qualification']) && $this->request->data['MatrimonyUser']['qualification'] && !preg_match('/^[a-z\/. ]+$/i', $this->request->data['MatrimonyUser']['qualification']) ) {
 
 					$this->MatrimonyUser->invalidate('qualification', __('Characters only'));
 					return  false;
 
 				}
 
-				if ( isset($this->request->data['MatrimonyUser']['collegeName']) && !preg_match('/^[a-z. ]+$/i', $this->request->data['MatrimonyUser']['collegeName']) ) {
+				if ( isset($this->request->data['MatrimonyUser']['collegeName']) && $this->request->data['MatrimonyUser']['collegeName'] && !preg_match('/^[a-z. ]+$/i', $this->request->data['MatrimonyUser']['collegeName']) ) {
 
 					$this->MatrimonyUser->invalidate('collegeName', __('Characters only'));
 					return  false;
@@ -1906,7 +2165,7 @@ class MatrimonyUsersController extends AppController{
 				}
 
 
-				if ( isset($this->request->data['MatrimonyUser']['university']) && !preg_match('/^[a-z. ]+$/i', $this->request->data['MatrimonyUser']['university']) ) {
+				if ( isset($this->request->data['MatrimonyUser']['university']) && $this->request->data['MatrimonyUser']['university'] && !preg_match('/^[a-z. ]+$/i', $this->request->data['MatrimonyUser']['university']) ) {
 
 					$this->MatrimonyUser->invalidate('university', __('Characters only'));
 					return  false;
@@ -1914,13 +2173,13 @@ class MatrimonyUsersController extends AppController{
 				}
 
 
-				if ( isset($this->request->data['MatrimonyUser']['achievements']) && !preg_match('/^[a-z0-9., ]{10,250}$/i', $this->request->data['MatrimonyUser']['achievements']) ) {
+				if ( isset($this->request->data['MatrimonyUser']['achievements']) && $this->request->data['MatrimonyUser']['achievements'] && !preg_match('/^[a-z0-9., ]{10,250}$/i', $this->request->data['MatrimonyUser']['achievements']) ) {
 					$this->MatrimonyUser->invalidate('achievements', 'Minimum 10 and Maximum 250 Characters only.');
 					return  false;
 
 				}
 
-				if ( isset($this->request->data['MatrimonyUser']['occupation']) && !preg_match('/^[a-z ]+$/i', $this->request->data['MatrimonyUser']['occupation']) ) {
+				if ( isset($this->request->data['MatrimonyUser']['occupation']) && $this->request->data['MatrimonyUser']['occupation'] && !preg_match('/^[a-z ]+$/i', $this->request->data['MatrimonyUser']['occupation']) ) {
 
 					$this->MatrimonyUser->invalidate('occupation', __('Characters only'));
 					return  false;
@@ -1958,14 +2217,14 @@ class MatrimonyUsersController extends AppController{
 				}
 
 
-				if ( isset($this->request->data['MatrimonyUser']['fatherName']) && !preg_match('/^[a-z ]+$/i', $this->request->data['MatrimonyUser']['fatherName']) ) {
+				if ( isset($this->request->data['MatrimonyUser']['fatherName']) && $this->request->data['MatrimonyUser']['fatherName'] && !preg_match('/^[a-z ]+$/i', $this->request->data['MatrimonyUser']['fatherName']) ) {
 
 					$this->MatrimonyUser->invalidate('fatherName', __('Characters only'));
 					return  false;
 
 				}
 
-				if ( isset($this->request->data['MatrimonyUser']['motherName']) && !preg_match('/^[a-z ]+$/i', $this->request->data['MatrimonyUser']['motherName']) ) {
+				if ( isset($this->request->data['MatrimonyUser']['motherName']) && $this->request->data['MatrimonyUser']['motherName'] && !preg_match('/^[a-z ]+$/i', $this->request->data['MatrimonyUser']['motherName']) ) {
 
 					$this->MatrimonyUser->invalidate('motherName', __('Characters only'));
 					return  false;
@@ -1978,13 +2237,13 @@ class MatrimonyUsersController extends AppController{
 
 				}
 
-				if ( isset($this->request->data['MatrimonyUser']['address']) && !preg_match('/^[a-z0-9-#\/,: ]+$/i', $this->request->data['MatrimonyUser']['address']) ) {
+				if ( isset($this->request->data['MatrimonyUser']['address']) && $this->request->data['MatrimonyUser']['address'] && !preg_match('/^[a-z0-9-#\/,: ]+$/i', $this->request->data['MatrimonyUser']['address']) ) {
 					$this->MatrimonyUser->invalidate('address', __('Special Symbols Not Allowed'));
 					return  false;
 
 				}
 
-				if ( isset($this->request->data['MatrimonyUser']['partnerQualification']) && !preg_match('/^[a-z\/. ]+$/i', $this->request->data['MatrimonyUser']['partnerQualification']) ) {
+				if ( isset($this->request->data['MatrimonyUser']['partnerQualification']) && $this->request->data['MatrimonyUser']['partnerQualification'] && !preg_match('/^[a-z\/. ]+$/i', $this->request->data['MatrimonyUser']['partnerQualification']) ) {
 
 					$this->MatrimonyUser->invalidate('partnerQualification', __('Characters only'));
 					return  false;
@@ -1992,7 +2251,7 @@ class MatrimonyUsersController extends AppController{
 				}
 
 
-				if ( isset($this->request->data['MatrimonyUser']['aboutPartner']) && !preg_match('/^[a-z0-9., ]{10,250}$/i', $this->request->data['MatrimonyUser']['aboutPartner']) ) {
+				if ( isset($this->request->data['MatrimonyUser']['aboutPartner']) && $this->request->data['MatrimonyUser']['aboutPartner'] && !preg_match('/^[a-z0-9., ]{10,250}$/i', $this->request->data['MatrimonyUser']['aboutPartner']) ) {
 					$this->MatrimonyUser->invalidate('aboutPartner', 'Minimum 10 and Maximum 250 Characters only.');
 					return  false;
 
@@ -2035,7 +2294,7 @@ class MatrimonyUsersController extends AppController{
 
 
 				if (isset($this->request->data['AkpageUser'])) {
-					$this->MatrimonyUser->AkpageUser->id = $editUser['AkpgUser']['id'];
+					$this->MatrimonyUser->AkpageUser->id = $editUser['AkpageUser']['id'];
 					if ($this->MatrimonyUser->AkpageUser->save($this->request->data['AkpageUser'])) {
 						// NOTHING
 					}else {
@@ -2063,12 +2322,10 @@ class MatrimonyUsersController extends AppController{
 			} else{
 
 				$this->request->data = $editUser;
-				$this->request->data['User'] = $editUser['Usr'];
-				$this->request->data['AkpageUser'] = $editUser['AkpgUser'];
-
-				/* echo "<pre>";
-				 print_r($this->request->data['MatrimonyUser']);
-				exit; */
+				/* $this->request->data['User'] = $editUser['Usr'];
+				 $this->request->data['AkpageUser'] = $editUser['AkpgUser']; */
+				$this->request->data['User'] = $editUser['AkpageUser']['User'];
+				//$this->request->data['AkpageUser'] = $editUser['AkpageUser'];
 
 				$educationalDetails = json_decode($editUser['MatrimonyUser']['educationalDetails'],true);
 				foreach ($educationalDetails as $key => $value) {
@@ -2104,7 +2361,7 @@ class MatrimonyUsersController extends AppController{
 				}
 
 			}
-				
+
 			$this->set('editTab', $editTab);
 		}
 

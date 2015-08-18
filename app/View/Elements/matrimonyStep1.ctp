@@ -63,7 +63,7 @@
 							
 						</table>
 						<div class="align-right">
-							<?php echo $this->Form->submit(__('Proceed'), array('class' => array('btn', 'btn-success', 'btn-md'), 'div' => false)); ?>
+							<?php echo $this->Form->submit(__('Next'), array('class' => array('btn', 'btn-success', 'btn-md'), 'div' => false)); ?>
 							<?php //echo $this->Form->end(array('label' => __('Cancel'), 'class' => array('btn', 'btn-danger', 'btn-md'), 'div' => false)); ?>
 						</div>
 						<?php echo $this->Form->end(__('')); ?>

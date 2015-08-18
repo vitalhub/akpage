@@ -51,8 +51,13 @@
 		    	  			$dir="uploads/images/".$recentMember['AkpageUser']['id']."/";
 		    	  			$images = glob($dir . '*.{jpg,jpeg,png,gif}', GLOB_BRACE);
 		    	  			$key = array_search("uploads/images/".$recentMember['AkpageUser']['id']."/".$recentMember['MatrimonyUser']['profilePic'],$images);
+		    	  			if ($images) {
+		    	  				echo $this->Html->link($this->Html->image("../".$images[$key],array('title'=>'Profile Pic','width'=>'100','height'=>'100')),array('action'=>"view/".$recentMember['MatrimonyUser']['id']),array('escape'=>false));
+		    	  			}else {
 		    	  				
-		    	  			echo $this->Html->link($this->Html->image("../".$images[$key],array('title'=>'Profile Pic','width'=>'100','height'=>'100')),array('action'=>"view/".$recentMember['MatrimonyUser']['id']),array('escape'=>false));
+		    	  				echo $this->Html->link($this->Html->image("../uploads/images/not_uploaded.jpg",array('title'=>'Profile Pic','width'=>'100','height'=>'100')),array('action'=>"view/".$recentMember['MatrimonyUser']['id']),array('escape'=>false));
+		    	  			}
+		    	  			
 		    	  				
 		    	  		}else {
 

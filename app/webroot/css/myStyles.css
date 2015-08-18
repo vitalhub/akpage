@@ -325,6 +325,13 @@ p.error,
 	color: #3B8230;
 }
 
+/* ########################### */
+
+.userDataEmpty{
+	text-align: center;
+	margin: 20px;
+}
+
 
     
     
