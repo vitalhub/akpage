@@ -25,7 +25,7 @@
 						}
 					}
 					else
-					 echo "No one Visited your profile yet.";
+					 echo __("Still No One Visited Your Profile.");
 					?>
 
 			</div>
@@ -84,31 +84,29 @@
 
 		<?php }
 			}
-		}else
-			echo __("No Matches for you");
-		?>
-
-		<div class="clearfix"></div>
-
-		<p class="para align-center">
-			<?php
-					echo $this->Paginator->counter(array(
-			'format' => __('Page {:page} of {:pages}, showing {:current} records out of {:count} total, starting on record {:start}, ending on {:end}')
-			));
-			?>
-		</p>
-		<div class="align-center">
-			<nav>
-				<ul class="pagination">
-					<?php
-					echo "<li>".$this->Paginator->prev('< ' . __('previous'), array(), null, array('class' => 'prev disabled'))."</li>";
-					echo "<li>".$this->Paginator->numbers(array('separator' => ''), array('class' => 'active'))."</li>";
-					echo "<li>".$this->Paginator->next(__('next') . ' >', array(), null, array('class' => 'next disabled'))."</li>";
-					?>
-				</ul>
-			</nav>
-		</div>
-
+			
+			if ($this->Paginator->counter('{:pages}')-1) { ?>
+											<div class="clearfix"></div>
+							    	  		<div class="align-center">
+							    	  		<nav>
+							    	  		<ul class="pagination">
+							    	  		<?php
+							    	  		echo "<li>".$this->Paginator->prev('< ' . __('previous'), array(), null, array('class' => 'prev disabled'))."</li>";
+							    	  		echo "<li>".$this->Paginator->numbers(array('separator' => ''), array('class' => 'active'))."</li>";
+							    	  		echo "<li>".$this->Paginator->next(__('next') . ' >', array(), null, array('class' => 'next disabled'))."</li>";
+							    	  		?>
+							    	  		</ul>
+							    	  		</nav>
+							    	  		</div>
+							    	  <?php } ?>
+							    	  	
+							    	  	
+									<?php }else{
+											echo "<div class='align-center'>";
+											echo __("Sorry...! No Matches Found.");
+											echo "</div>";
+									}
+										?>
 	</div>
 
 	<div class="right-col-boxes">
@@ -127,7 +125,7 @@
 			}
 		}
 		else
-		 echo "You haven't visited any other profiles.";
+		 echo __("Still No Profiles Visited By You.");
 		?>
 			
 		</div>

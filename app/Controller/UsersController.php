@@ -91,6 +91,15 @@ class UsersController extends AppController {
 		$this->Acl->allow($group, 'controllers/MatrimonyUsers/changeAccessMode');
 		$this->Acl->allow($group, 'controllers/MatrimonyUsers/edit');
 		$this->Acl->allow($group, 'controllers/MatrimonyUsers/payment');
+		$this->Acl->allow($group, 'controllers/News/add');
+		$this->Acl->allow($group, 'controllers/News/edit');
+		$this->Acl->allow($group, 'controllers/News/delete');
+		$this->Acl->allow($group, 'controllers/News/myNews');
+		$this->Acl->allow($group, 'controllers/BlogPosts/add');
+		$this->Acl->allow($group, 'controllers/BlogPosts/edit');
+		$this->Acl->allow($group, 'controllers/BlogPosts/delete');
+		$this->Acl->allow($group, 'controllers/BlogPosts/myPosts');
+		$this->Acl->allow($group, 'controllers/BlogPostComments/add');
 			
 
 
@@ -112,6 +121,15 @@ class UsersController extends AppController {
 		$this->Acl->allow($group, 'controllers/MatrimonyUsers/requestHandler');
 		$this->Acl->allow($group, 'controllers/MatrimonyUsers/changeAccessMode');
 		$this->Acl->allow($group, 'controllers/MatrimonyUsers/edit');
+		$this->Acl->allow($group, 'controllers/News/add');
+		$this->Acl->allow($group, 'controllers/News/edit');
+		$this->Acl->allow($group, 'controllers/News/delete');
+		$this->Acl->allow($group, 'controllers/News/myNews');
+		$this->Acl->allow($group, 'controllers/BlogPosts/add');
+		$this->Acl->allow($group, 'controllers/BlogPosts/edit');
+		$this->Acl->allow($group, 'controllers/BlogPosts/delete');
+		$this->Acl->allow($group, 'controllers/BlogPosts/myPosts');
+		$this->Acl->allow($group, 'controllers/BlogPostComments/add');
 		
 		
 		
@@ -311,8 +329,10 @@ class UsersController extends AppController {
 								$this->Session->setFlash('Please Change your password first.');
 								$this->redirect(array('action'=>'changePassword'));
 							}
-
-							$this->redirect($this->referer());
+							if ($this->Session->read('Auth.User.id')) {
+								return $this->redirect(array('controller' => 'users', 'action' => 'home'));
+							}
+							return $this->redirect($this->referer());
 
 						}
 					}
@@ -825,15 +845,7 @@ class UsersController extends AppController {
 	public function advertizeWithUs() {
 
 	}
-
-	public function astrology() {
-
-	}
-
-	public function news() {
-
-	}
-
+	
 	public function jobs() {
 
 	}
@@ -855,10 +867,6 @@ class UsersController extends AppController {
 	}
 
 	public function mobileApp() {
-
-	}
-
-	public function akblog() {
 
 	}
 

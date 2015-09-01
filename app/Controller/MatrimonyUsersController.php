@@ -17,12 +17,7 @@ class MatrimonyUsersController extends AppController{
 	public $components = array('Paginator', 'Session');
 
 	public function beforeFilter(){
-		parent::beforeFilter();
-		//$this->Auth->allow('register','logout');
-		//$this->Auth->allow('index','view','register','register0','register1','register2','matchingProfiles');
-		//$this->Auth->allow('index','edit', 'matrimonyHome', 'register', 'searchBasic', 'ajaxStateCities', 'searchById');
-		//$this->Auth->allow('requestAjaxHandler','uploadPhotos','changeProfilePic','deletePhotos', 'changeAccessMode', 'requestHandler', 'payment');
-		//$this->Auth->allow('searchById','searchBasic','requestHandler','tempRequests','changeAccessMode');
+		parent::beforeFilter();		
 		if (!$this->currentUser) {
 			//$this->Auth->allow('register');
 		}else {
@@ -30,7 +25,6 @@ class MatrimonyUsersController extends AppController{
 		}
 
 		$this->Auth->allow('view', 'register', 'searchById','searchBasic', 'matrimonyHome', 'ajaxStateCities');
-
 
 	}
 
@@ -801,6 +795,7 @@ class MatrimonyUsersController extends AppController{
 			
 			$this->loadModel('SiteConstant');
 			$pageLimit = $this->SiteConstant->field('value', array('SiteConstant.siteconstant' => 'PAGE_LIMIT'));
+			//$pageLimit = 1;			
 
 			if ($partnerDetails) {
 
@@ -856,8 +851,8 @@ class MatrimonyUsersController extends AppController{
 									"MatrimonyUser.drinking" => $partnerDetails['partnerDrinking'],
 									"MatrimonyUser.aboutMe LIKE" => '%'. $partnerDetails['aboutPartner'] . '%',
 									array('AkpgUser.dob <=' => $partnerDetails['fromAge'], 'AkpgUser.dob >=' => $partnerDetails['toAge'])),
-							"AkpgUser.gender !=" =>$partnerDetails['gender'])
-							,'joins' => array(
+									"AkpgUser.gender !=" =>$partnerDetails['gender']
+							),'joins' => array(
 									array('table' => 'akpageUsers',
 											'alias' => 'AkpgUser',
 											'type' => 'INNER',
@@ -2328,24 +2323,33 @@ class MatrimonyUsersController extends AppController{
 				//$this->request->data['AkpageUser'] = $editUser['AkpageUser'];
 
 				$educationalDetails = json_decode($editUser['MatrimonyUser']['educationalDetails'],true);
-				foreach ($educationalDetails as $key => $value) {
-					$this->request->data['MatrimonyUser'][$key] = $value;
-				}
+				if ($educationalDetails) {
+					foreach ($educationalDetails as $key => $value) {
+						$this->request->data['MatrimonyUser'][$key] = $value;
+					}
+				}				
 
 				$professionalDetails = json_decode($editUser['MatrimonyUser']['professionalDetails'],true);
-				foreach ($professionalDetails as $key => $value) {
-					$this->request->data['MatrimonyUser'][$key] = $value;
-				}
+				if ($professionalDetails) {
+					foreach ($professionalDetails as $key => $value) {
+						$this->request->data['MatrimonyUser'][$key] = $value;
+					}
+				}				
 
 				$familyDetails = json_decode($editUser['MatrimonyUser']['familyDetails'],true);
-				foreach ($familyDetails as $key => $value) {
-					$this->request->data['MatrimonyUser'][$key] = $value;
+				if ($familyDetails) {
+					foreach ($familyDetails as $key => $value) {
+						$this->request->data['MatrimonyUser'][$key] = $value;
+					}						
 				}
-
+				
 				$partnerDetails = json_decode($editUser['MatrimonyUser']['partnerDetails'],true);
-				foreach ($partnerDetails as $key => $value) {
-					$this->request->data['MatrimonyUser'][$key] = $value;
+				if ($partnerDetails) {
+					foreach ($partnerDetails as $key => $value) {
+						$this->request->data['MatrimonyUser'][$key] = $value;
+					}
 				}
+				
 
 				$states = $partnerStates = $this->MatrimonyUser->State->find('list');
 				$this->set(compact('states', 'partnerStates'));

@@ -24,7 +24,7 @@
 
 <!-- ############################################################################### -->
 
-<?php $akpageUrl = "http://akpagev1.btobz.com/"; ?>
+<?php $akpageUrl = "http://dev.akpage.com/"; ?>
 
 <div style=" margin :10px auto; width: 550px; height: auto; min-height: 400px; background-color: #edefed;">
 

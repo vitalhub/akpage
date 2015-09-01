@@ -10,19 +10,24 @@
 										
 					<h4 class="head4"><?php echo $news['News']['title']; ?></h4>
 						
-						<div style=" padding: 10px 10px;">
-							<span style="width: 49%; display : inline-block;">					
-								<?php echo __('Publisher:'); ?>					
-								<?php //echo $this->Html->link($news['Creater']['username'], array('controller' => 'users', 'action' => 'view', $news['Creater']['id'])); 
-										echo "Admin";
-								?>
-							</span>
-							
-							<span class= "align-right" style="width: 50%; display : inline-block;">						
-								<?php echo __('Published On:'); ?>
-								<?php echo h($news['News']['created']); ?>
-							</span>	
-						</div>
+						<div style=" padding: 10px 10px;" class="smallSizeText">
+									<span style="width: 49%; display : inline-block;">					
+										<?php echo __('Publisher:'); ?>					
+										<?php if (isset($news['User']['AkpageUser']['id'])) {
+											echo "<span class='capitalizeText'>".$news['User']['AkpageUser']['name']. " ". $news['User']['AkpageUser']['surname']."</span>";
+										}else {
+											echo "<span class='capitalizeText'>".__("Admin")."</span>";
+										}
+																					
+										?>
+									</span>
+									
+									<span class= "align-right" style="width: 50%; display : inline-block;">						
+										<?php echo __('Published On:'); ?>
+										<?php echo h($news['News']['created']); ?>
+									</span>
+										
+								</div>
 							
 						<div style="text-align : center; max-width: 100%;">
 							<?php 
@@ -30,7 +35,7 @@
 							 ?> 
 						</div>
 						<div style="text-align: justify; padding : 10px 10px;">						
-							<?php echo h($news['News']['content']); ?>
+							<?php echo $news['News']['content']; ?>
 						</div>
 						
 					</td>

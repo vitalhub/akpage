@@ -188,7 +188,7 @@
 						      		//echo $latestNews['News']['title']; ?>
 						      	</p>
 						      	<p class="titleContent"><?php if (strlen($latestNews['News']['content']) > 200) $latestNews['News']['content'] = substr($latestNews['News']['content'], 0, 200) . "...";
-									echo h($latestNews['News']['content']);  ?></p>
+									echo $latestNews['News']['content'];  ?></p>
 						    	</div>
 				    	  	</div>
 				    	  	
