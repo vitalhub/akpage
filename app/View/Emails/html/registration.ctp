@@ -16,7 +16,7 @@
 ?>
 <?php
 
-$loginUrl = "http://akpagev1.btobz.com/users/login";
+$loginUrl = "http://dev.akpage.com/users/login";
 
 $content = "Hi, "."<br /> 
 
