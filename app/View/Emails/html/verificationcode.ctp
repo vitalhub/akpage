@@ -16,7 +16,7 @@
 ?>
 <?php
 
-$verifyUrl = "http://akpagev1.btobz.com/users/emailVerify";
+$verifyUrl = "http://akpage.com/users/emailVerify";
 
 $content = "Hi,"."<br /> 
 
