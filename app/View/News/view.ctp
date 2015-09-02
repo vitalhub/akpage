@@ -31,7 +31,11 @@
 							
 						<div style="text-align : center; max-width: 100%;">
 							<?php 
-								echo $this->Html->link($this->Html->image("../uploads/images/news/".$news['News']['picture'],array('title'=>'Profile Pic','max-width'=>'500','max-height'=>'400')),array('controller' => 'news', 'action'=>"view/".$news['News']['id']),array('escape'=>false));
+								if ($news['News']['picture']) {
+					    	  		echo $this->Html->link($this->Html->image("../uploads/images/news/".$news['News']['picture'],array('title'=>'News Picture', 'width'=>'95%', 'height'=>'95%')),array('controller' => 'news', 'action'=>"view/".$news['News']['id']),array('escape'=>false));
+					    	  	}else {
+					    	  		// nothing here
+					    	  	}
 							 ?> 
 						</div>
 						<div style="text-align: justify; padding : 10px 10px;">						
