@@ -17,7 +17,7 @@
 <?php
 
 //$verificationCode = "creothek".time();
-$loginUrl = "http://akpagev1.btobz.com/users/login";
+$loginUrl = "http://stage.akpage.com/users/login";
 
 $content = "Hi,"."<br />
 
