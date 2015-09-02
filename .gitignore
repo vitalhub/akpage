@@ -1,6 +1,10 @@
 # User specific & automatically generated files #
 #################################################
 /app/Config/database.php
+/app/View/Layouts/Emails/html/akpageMail.ctp
+/app/View/Emails/html/registration.ctp
+/app/View/Emails/html/forgotpassword.ctp
+/app/View/Emails/html/verificationcode.ctp
 /app/tmp
 /lib/Cake/Console/Templates/skel/tmp/
 /plugins
