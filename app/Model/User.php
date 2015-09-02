@@ -143,6 +143,46 @@ class User extends AppModel {
 					'exclusive' => '',
 					'finderQuery' => '',
 					'counterQuery' => ''
+			),
+			'BlogPostCreater' => array(
+					'className' => 'BlogPost',
+					'foreignKey' => 'createdBy',
+					'dependent' => false,
+					'conditions' => '',
+					'fields' => '',
+					'order' => '',
+					'limit' => '',
+					'offset' => '',
+					'exclusive' => '',
+					'finderQuery' => '',
+					'counterQuery' => ''
+			),
+			'BlogPostModifier' => array(
+					'className' => 'BlogPost',
+					'foreignKey' => 'modifiedBy',
+					'dependent' => false,
+					'conditions' => '',
+					'fields' => '',
+					'order' => '',
+					'limit' => '',
+					'offset' => '',
+					'exclusive' => '',
+					'finderQuery' => '',
+					'counterQuery' => ''
+			),
+			'BlogPostCommentCreater' => array(
+					'className' => 'BlogPostComment',
+					'foreignKey' => 'commentedBy',
+					'conditions' => '',
+					'fields' => '',
+					'order' => ''
+			),
+			'BlogPostCommentModifier' => array(
+					'className' => 'BlogPostComment',
+					'foreignKey' => 'modifiedBy',
+					'conditions' => '',
+					'fields' => '',
+					'order' => ''
 			)
 	);
 

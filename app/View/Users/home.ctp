@@ -178,7 +178,13 @@
 				    	  		
 				    	  		<div class="homeNewsBoxPic">
 				    	  		<?php
-									echo $this->Html->link($this->Html->image("../uploads/images/news/".$latestNews['News']['picture'],array('title'=>'Profile Pic','width'=>'100','height'=>'100')),array('controller' => 'news', 'action'=>"view/".$latestNews['News']['id']),array('escape'=>false));
+				    	  		
+				    	  			if ($latestNews['News']['picture']) {
+				    	  				echo $this->Html->link($this->Html->image("../uploads/images/news/".$latestNews['News']['picture'],array('title'=>'News Picture','width'=>'100','height'=>'100')),array('controller' => 'news', 'action'=>"view/".$latestNews['News']['id']),array('escape'=>false));
+				    	  			}else {
+				    	  				echo $this->Html->link($this->Html->image("../uploads/images/not_uploaded.jpg",array('title'=>'News Picture','width'=>'100','height'=>'100')),array('controller' => 'news', 'action'=>"view/".$latestNews['News']['id']),array('escape'=>false));
+				    	  			}
+									
 								?>				    	  	
 				    	  		</div>
 				    	  		
@@ -188,7 +194,7 @@
 						      		//echo $latestNews['News']['title']; ?>
 						      	</p>
 						      	<p class="titleContent"><?php if (strlen($latestNews['News']['content']) > 200) $latestNews['News']['content'] = substr($latestNews['News']['content'], 0, 200) . "...";
-									echo h($latestNews['News']['content']);  ?></p>
+									echo $latestNews['News']['content'];  ?></p>
 						    	</div>
 				    	  	</div>
 				    	  	

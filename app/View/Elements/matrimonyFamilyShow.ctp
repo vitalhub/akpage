@@ -1,7 +1,21 @@
 
-		<?php $familyDetails = json_decode($viewedUser['MatrimonyUser']['familyDetails'],true); ?>
+		<?php 
+			$familyDetails = json_decode($viewedUser['MatrimonyUser']['familyDetails'],true);
+			
+			if ($familyDetails) {
+				foreach ($familyDetails as $key=>$value) {
+						
+					if ($value == '') {
+						$familyDetails[$key] = $dataEmptyMessage;
+					}
+				}
+			}
+			
+		 ?>
 		
 			<div class="homeNews" style=" border: 0;">
+			
+			<?php if ($familyDetails) { ?>
 													
 					<div class="matrimonyUsers form" style="padding: 10px;">
 					
@@ -70,4 +84,10 @@
 						</table>
 						
 					</div>
+					
+					<?php }else {
+							echo "<p class='userDataEmpty'>";	
+							echo __("Sorry...! These Details Are Not Provided By The User.");
+							echo "</p>";
+					}?>
 			</div>

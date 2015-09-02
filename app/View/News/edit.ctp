@@ -1,3 +1,16 @@
+<?php echo $this->Html->script(array('tinymce/tinymce.min')); ?>
+
+<script type="text/javascript">
+    tinyMCE.init({
+        theme : "modern",
+        mode : "textareas",
+       // plugins: "image",
+        convert_urls : false
+    });
+</script>
+
+
+
 <?php if(!$currentUser){
 	
 		echo "Session Expired. Please ". $this->Html->Link('Login',array('controller'=> 'users','action'=>'login')) ." again";
@@ -82,7 +95,7 @@
 					</td>
 						
 					<td class="capitalize">
-						<?php echo $this->Form->input('content',array('type'=>'textarea','label'=> false, 'div' => false, 'class' => 'form-control capitalize')); ?>
+						<?php echo $this->Form->input('content',array('type'=>'textarea','label'=> false, 'div' => false, 'class' => 'form-control capitalize', 'required' => false)); ?>
 					</td>
 				</tr>
 				<tr>
@@ -106,6 +119,13 @@
 						'class' => array('btn', 'btn-danger', 'btn-sm'),
 						'onclick' => 'location.href=\'../../News/index\''
 				));
+			}else {
+				echo $this->Form->button('Cancel', array(
+		'type' => 'button',
+		'div' => false,
+		'class' => array('btn', 'btn-danger', 'btn-sm'),
+		'onclick' => 'location.href=\'../../News/myNews\''
+));
 			}?>
 				
 			</div>	

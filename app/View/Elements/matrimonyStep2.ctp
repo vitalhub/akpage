@@ -12,7 +12,7 @@
 
 				<td class="capitalize"><?php 
 				$options=array('self'=>'self','son'=>'son','daughter'=>'daughter','brother'=>'brother','sister'=>'sister');
-				echo $this->Form->input('profileFor', array('options' => $options, 'empty' => '(Choose one)', 'div' => false, 'label' => false, 'class' => 'form-control capitalize'));
+				echo $this->Form->input('profileFor', array('options' => $options, 'empty' => '(Choose one)', 'div' => false, 'label' => false, 'class' => 'form-control capitalize', 'required' => false));
 				?>
 				</td>
 			</tr>
@@ -21,7 +21,7 @@
 				<td class="capitalize"><?php echo __(h('gothra')); ?>
 				</td>
 
-				<td class="capitalize"><?php echo $this->Form->input('gothra',array('type'=>'text','label'=> false, 'class' => 'form-control capitalize')); ?>
+				<td class="capitalize"><?php echo $this->Form->input('gothra',array('type'=>'text','label'=> false, 'class' => 'form-control capitalize', 'required' => false)); ?>
 				</td>
 			</tr>
 
@@ -29,7 +29,7 @@
 				<td class="capitalize"><?php echo __(h('state')); ?>
 				</td>
 
-				<td class="formTableText"><?php echo $this->Form->input('state_id', array('id'=>'state', 'type' => 'select', 'empty' => 'Select State', 'label'=> false, 'class' => 'form-control capitalize'));
+				<td class="formTableText"><?php echo $this->Form->input('state_id', array('id'=>'state', 'type' => 'select', 'empty' => 'Select State', 'label'=> false, 'class' => 'form-control capitalize', 'required' => false));
 				$this->Js->get('#state')->event(
 							    				'change',
 							   					 $this->Js->request(
@@ -49,7 +49,7 @@
 				<td class="capitalize"><?php echo __(h('city')); ?>
 				</td>
 
-				<td class="capitalize"><?php echo $this->Form->input('city_id',array('id'=>'city', 'type' => 'select', 'empty' => 'Select City', 'label'=> false, 'class' => 'form-control capitalize')); ?>
+				<td class="capitalize"><?php echo $this->Form->input('city_id',array('id'=>'city', 'type' => 'select', 'empty' => 'Select City', 'label'=> false, 'class' => 'form-control capitalize', 'required' => false)); ?>
 				</td>
 			</tr>
 
@@ -57,7 +57,7 @@
 				<td class="capitalize"><?php echo __(h('address')); ?>
 				</td>
 
-				<td class="capitalize"><?php echo $this->Form->input('address',array('label'=> false, 'class' => 'form-control capitalize')); ?>
+				<td class="capitalize"><?php echo $this->Form->input('address',array('label'=> false, 'class' => 'form-control capitalize', 'required' => false)); ?>
 				</td>
 			</tr>
 
@@ -67,7 +67,7 @@
 
 				<td class="capitalize"><?php 
 				$options=array(0=>'Unmarried', 1=>'Widower', 2=>'Divorced', 3=>'Awaiting divorce');
-				echo $this->Form->input('maritalStatus', array('options' => $options, 'empty' => '(choose one)', 'div' => false, 'label' => false, 'class' => 'form-control capitalize'));
+				echo $this->Form->input('maritalStatus', array('options' => $options, 'empty' => '(choose one)', 'div' => false, 'label' => false, 'class' => 'form-control capitalize', 'required' => false));
 				?>
 				</td>
 			</tr>
@@ -76,7 +76,7 @@
 				<td class="capitalize"><?php echo __(h('smoking')); ?>
 				</td>
 
-				<td class="capitalize"><?php echo $this->Form->input('smoking',array('type'=>'radio','options'=>array('No','Yes'), 'div' => false, 'label' => false, 'legend' => false, 'class' => 'capitalize custom-radio' )); ?>
+				<td class="capitalize"><?php echo $this->Form->input('smoking',array('type'=>'radio','options'=>array('No','Yes'), 'div' => false, 'label' => false, 'legend' => false, 'class' => 'capitalize custom-radio', 'required' => false)); ?>
 				</td>
 			</tr>
 
@@ -84,7 +84,7 @@
 				<td class="capitalize"><?php echo __(h('drinking')); ?>
 				</td>
 
-				<td class="capitalize"><?php echo $this->Form->input('drinking',array('type'=>'radio','options'=>array('No','Yes'), 'div' => false, 'label' => false, 'legend' => false, 'class' => 'capitalize custom-radio' )); ?>
+				<td class="capitalize"><?php echo $this->Form->input('drinking',array('type'=>'radio','options'=>array('No','Yes'), 'div' => false, 'label' => false, 'legend' => false, 'class' => 'capitalize custom-radio', 'required' => false)); ?>
 				</td>
 			</tr>
 
@@ -98,7 +98,7 @@
 												, '6ft'=>'6ft', '6ft 1in'=>'6ft 1in', '6ft 2in'=>'6ft 2in', '6ft 3in'=>'6ft 3in', '6ft 4in'=>'6ft 4in', '6ft 5in'=>'6ft 5in', '6ft 6in'=>'6ft 6in', '6ft 7in'=>'6ft 7in'
 												, '6ft 8in'=>'6ft 8in', '6ft 9in'=>'6ft 9in', '6ft 10in'=>'6ft 10in', '6ft 11in'=>'6ft 11in', '7ft'=>'7ft', 'Above 7ft'=> 'Above 7ft');
 
-										echo $this->Form->input('height',array('type' => 'select', 'options' => $options, 'empty' => 'Select Height', 'label'=> false, 'class' => 'form-control capitalize'));
+										echo $this->Form->input('height',array('type' => 'select', 'options' => $options, 'empty' => 'Select Height', 'label'=> false, 'class' => 'form-control capitalize', 'required' => false));
 										?>
 				</td>
 			</tr>
@@ -116,7 +116,7 @@
 												, '88 kg'=>'88 kg', '89 kg'=>'89 kg', '90 kg'=>'90 kg', '91 kg'=>'91 kg', '92 kg'=>'92 kg', '93 kg'=>'93 kg', '94 kg'=>'94 kg', '95 kg'=>'95 kg', '96 kg'=>'96 kg', '97 kg'=>'97 kg', '98 kg'=>'98 kg', '99 kg'=>'99 kg', '100 kg'=>'100 kg', '101 kg'=>'101 kg', '102 kg'=>'102 kg', '103 kg'=>'103 kg', '104 kg'=>'104 kg', '105 kg'=>'105 kg', '106 kg'=>'106 kg', '107 kg'=>'107 kg', '108 kg'=>'108 kg', '109 kg'=>'109 kg', '110 kg'=>'110 kg', '111 kg'=>'111 kg', '111 kg'=>'112 kg', '111 kg'=>'113 kg', '111 kg'=>'114 kg', '115 kg'=>'115 kg', '116 kg'=>'116 kg', '117 kg'=>'117 kg', '118 kg'=>'118 kg', '119 kg'=>'119 kg', '120 kg'=>'120 kg', '121 kg'=>'121 kg', '122 kg'=>'122 kg', '123 kg'=>'123 kg', '124 kg'=>'124 kg', '125 kg'=>'125 kg', '126 kg'=>'126 kg', '127 kg'=>'127 kg', '128 kg'=>'128 kg', '129 kg'=>'129 kg', '130 kg'=>'130 kg', 'Above 130 kg' => 'Above 130 kg');
 
 									//echo $this->Form->input('weight',array('label'=> false, 'class' => 'form-control capitalize'));
-					echo $this->Form->input('weight',array('type' => 'select', 'options' => $options, 'empty' => 'Select Weight', 'label'=> false, 'class' => 'form-control capitalize'));
+					echo $this->Form->input('weight',array('type' => 'select', 'options' => $options, 'empty' => 'Select Weight', 'label'=> false, 'class' => 'form-control capitalize', 'required' => false));
 
 ?>
 				</td>
@@ -128,7 +128,7 @@
 
 				<td class="capitalize"><?php 
 				$options=array('public', 'private', 'protected');
-				echo $this->Form->input('accessMode', array('options' => $options, 'empty' => '(choose one)', 'div' => false, 'label' => false, 'class' => 'form-control capitalize'));
+				echo $this->Form->input('accessMode', array('options' => $options, 'empty' => '(choose one)', 'div' => false, 'label' => false, 'class' => 'form-control capitalize', 'required' => false));
 				?>
 				</td>
 			</tr>
@@ -137,7 +137,7 @@
 				<td class="capitalize"><?php echo __(h('Profile Pic')); ?>
 				</td>
 
-				<td class="capitalize"><?php echo $this->Form->input('profilePic',array('type'=>'file', 'div' => false, 'label'=> false, 'class' => 'capitalize')); ?>
+				<td class="capitalize"><?php echo $this->Form->input('profilePic',array('type'=>'file', 'div' => false, 'label'=> false, 'class' => 'capitalize', 'required' => false)); ?>
 				</td>
 			</tr>
 
@@ -145,15 +145,15 @@
 				<td class="capitalize"><?php echo __(h('About Me')); ?>
 				</td>
 
-				<td class="capitalize"><?php echo $this->Form->input('aboutMe',array('label'=> false, 'class' => 'form-control capitalize')); ?>
+				<td class="capitalize"><?php echo $this->Form->input('aboutMe',array('label'=> false, 'class' => 'form-control capitalize', 'required' => false)); ?>
 				</td>
 			</tr>
 
 		</table>
 		<div class="align-right">
-			<?php echo $this->Form->submit(__('Proceed'), array('class' => array('btn', 'btn-success', 'btn-md'), 'div' => false)); ?>
-			<?php //echo $this->Form->end(array('label' => __('Proceed'), 'class' => array('btn', 'btn-success', 'btn-md'), 'div' => false)); ?>
-			<?php //echo $this->Form->end(array('label' => __('Cancel'), 'class' => array('btn', 'btn-danger', 'btn-md'), 'div' => false)); ?>
+			<?php echo $this->Form->submit(__('Previous'), array('name' => 'previous', 'class' => array('btn', 'btn-success', 'btn-md'), 'div' => false)); ?>			
+			<?php echo $this->Form->submit(__('Skip'), array('name' => 'skip', 'class' => array('btn', 'btn-success', 'btn-md'), 'div' => false)); ?>
+			<?php echo $this->Form->submit(__('Next'), array('name' => 'next', 'class' => array('btn', 'btn-success', 'btn-md'), 'div' => false)); ?>
 		</div>
 		<?php echo $this->Form->end(__('')); ?>
 

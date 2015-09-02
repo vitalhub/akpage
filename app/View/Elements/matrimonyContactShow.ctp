@@ -1,11 +1,13 @@
 
 <div class="homeNews" style="border: 0;">
 
+<div class='align-center'>
+
 	<?php 
 
-	if(in_array($currentUser['group_id'],array(4,2)) || $viewedUser['AkpgUser']['user_id'] == $this->Session->read('Auth.User.id')){
+	if(in_array($currentUser['group_id'],array(4,2)) || $viewedUser['AkpageUser']['user_id'] == $this->Session->read('Auth.User.id')){
 			
-		if($viewedUser['MatrimonyUser']['accessMode'] == 1 && $currentUser['group_id']!= 2 && $viewedUser['AkpgUser']['user_id'] != $this->Session->read('Auth.User.id')){ // protected mode limited access.
+		if($viewedUser['MatrimonyUser']['accessMode'] == 1 && $currentUser['group_id']!= 2 && $viewedUser['AkpageUser']['user_id'] != $this->Session->read('Auth.User.id')){ // protected mode limited access.
 
 			$allowed = 2;
 			if($requestOld){
@@ -19,6 +21,7 @@
 								array('action' => 'requestAjaxHandler', $loggedUser['MatrimonyUser']['id'], $viewedUser['MatrimonyUser']['id'], 1, 'request'),
 								array('update' => '#request')
 						)."</span>";
+						
 							
 						break;
 							
@@ -71,6 +74,17 @@
 			?>
 
 	<div class="matrimonyUsers form" style="padding: 10px;">
+	<?php 
+				if ($viewedUser['MatrimonyUser']) {					
+				
+					foreach ($viewedUser['MatrimonyUser'] as $key=>$value) {
+	
+						if ($value == '') {
+							$viewedUser['MatrimonyUser'][$key] = $dataEmptyMessage;
+						}
+					}
+			?>
+	
 
 		<table class="table table-bordered table-striped table-hover">
 
@@ -78,7 +92,7 @@
 				<td class="capitalize"><?php echo __(h('city')); ?>
 				</td>
 
-				<td><?php echo h($viewedUser['Cits']['city']); ?>
+				<td><?php echo ( ($viewedUser['City']['city'] != '') ? h($viewedUser['City']['city']) : $dataEmptyMessage ); ?>
 				</td>
 			</tr>
 
@@ -94,7 +108,7 @@
 				<td class="capitalize"><?php echo __(h('state')); ?>
 				</td>
 
-				<td><?php echo h($viewedUser['Stats']['state']); ?>
+				<td><?php echo ( ($viewedUser['State']['state'] != '') ? h($viewedUser['State']['state']) : $dataEmptyMessage ); ?>
 				</td>
 			</tr>
 
@@ -102,7 +116,7 @@
 				<td class="capitalize"><?php echo __(h('Date of Birth')); ?>
 				</td>
 
-				<td><?php echo h($viewedUser['AkpgUser']['dob']); ?>
+				<td><?php echo h($viewedUser['AkpageUser']['dob']); ?>
 				</td>
 			</tr>
 
@@ -110,7 +124,7 @@
 				<td class="capitalize"><?php echo __(h('Email')); ?>
 				</td>
 
-				<td><?php echo h($viewedUser['Usr']['email']); ?>
+				<td><?php echo h($viewedUser['AkpageUser']['User']['email']); ?>
 				</td>
 			</tr>
 
@@ -118,11 +132,17 @@
 				<td class="capitalize"><?php echo __(h('phone')); ?>
 				</td>
 
-				<td><?php echo h($viewedUser['AkpgUser']['phone']); ?>
+				<td><?php echo h($viewedUser['AkpageUser']['phone']); ?>
 				</td>
 			</tr>
 
 		</table>
+		
+		<?php }else {
+							echo "<p class='userDataEmpty'>";	
+							echo __("Sorry...! These Details Are Not Provided By The User.");
+							echo "</p>";
+					}?>
 
 
 	</div>
@@ -135,6 +155,8 @@
 		</h4>
 	
 	<?php } ?>
+	
+	</div>
 
 </div>
 

@@ -100,8 +100,10 @@ class AppController extends Controller {
 
 		$this->set('currentUser', $this->currentUser);
 		
-			
-
+		$this->loadModel('SiteConstant');
+		$dataEmptyMessage = $this->SiteConstant->field('value', array('siteConstant' => 'DATA_EMPTY_MESSAGE'));
+		
+		$this->set('dataEmptyMessage', $dataEmptyMessage);
 
 		return true;
 		

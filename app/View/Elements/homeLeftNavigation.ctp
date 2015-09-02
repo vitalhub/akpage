@@ -19,7 +19,7 @@
 		<?php echo $this->Html->link("<span class='glyphicon glyphicon-grain'></span>"." Family Tree", array('controller' => 'users', 'action' => 'familyTree'), array('escape' => false)); ?>
 		<?php echo $this->Html->link("<span class='glyphicon glyphicon-knight'></span>"." Games", array('controller' => 'users', 'action' => 'games'), array('escape' => false)); ?>
 		<?php echo $this->Html->link("<span class='glyphicon glyphicon-phone'></span>"." Mobile App", array('controller' => 'users', 'action' => 'mobileApp'), array('escape' => false)); ?>
-		<?php echo $this->Html->link("<span class='glyphicon glyphicon-pencil'></span>"." Akblog", array('controller' => 'users', 'action' => 'akblog'), array('escape' => false)); ?>
+		<?php echo $this->Html->link("<span class='glyphicon glyphicon-pencil'></span>"." Akblog", array('controller' => 'blogPosts', 'action' => 'latestPosts'), array('escape' => false)); ?>
 
 		<!-- <a href="#"><span class="glyphicon glyphicon-heart"></span> Matrimony</a>
 			<a href="#"><span class="glyphicon glyphicon-star-empty"></span> Astrology</a>
